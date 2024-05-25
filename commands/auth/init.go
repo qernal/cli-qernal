@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type config struct {
+type Qernalconfig struct {
 	Token string `yaml:"token"`
 }
 
@@ -27,7 +27,7 @@ var (
 2. **$HOME/.qernal/config.yaml file:** If the environment variable is not found, the CLI checks for the token in this file.
 3. **User input:** If neither of the above is found, the user is prompted to enter their Qernal token.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			token, err := getQernalToken()
+			token, err := GetQernalToken()
 			if err != nil {
 				return err
 			}
@@ -39,7 +39,7 @@ var (
 	cfgPath = filepath.Join(os.Getenv("HOME"), ".qernal", "config.yaml")
 )
 
-func getQernalToken() (string, error) {
+func GetQernalToken() (string, error) {
 	// 1. Check environment variable
 	if token := os.Getenv("QERNAL_TOKEN"); token != "" {
 		fmt.Println(charm.SuccessStyle.Render("configuring CLI using environment variable ✅"))
@@ -48,12 +48,12 @@ func getQernalToken() (string, error) {
 	}
 
 	// 2. Check config file
-	if token, err := readConfig(cfgPath); err == nil {
-		fmt.Println(charm.SuccessStyle.Render(fmt.Sprintf("Using token from %s.", cfgPath)))
-		return token, nil
+	if config, err := readConfig(cfgPath); err == nil {
+
+		return config.Token, nil
 	} else if os.IsNotExist(err) {
 		// File doesn't exist, continue to prompt user
-		token, err := charm.GetSensitiveInput("clientid@clientsecret", ".....")
+		token, err := charm.GetSensitiveInput("clientid@clientsecret", "")
 		if err != nil {
 			fmt.Println(charm.ErrorStyle.Render(fmt.Sprintf("error retrieving input %s", err.Error())))
 			return "", err
@@ -61,7 +61,7 @@ func getQernalToken() (string, error) {
 		return token, nil
 
 	}
-	token, err := charm.GetSensitiveInput("Enter your token", ".....")
+	token, err := charm.GetSensitiveInput("Enter your token", "")
 	if err != nil {
 		fmt.Println(charm.ErrorStyle.Render(fmt.Sprintf("error retrieving input %s", err.Error())))
 		return "", err
@@ -69,25 +69,26 @@ func getQernalToken() (string, error) {
 	return token, nil
 }
 
-func readConfig(cfgPath string) (string, error) {
+func readConfig(cfgPath string) (Qernalconfig, error) {
 	viper.SetConfigFile(cfgPath)
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
-		return "", fmt.Errorf("error reading config file, %s", err)
+		return Qernalconfig{}, fmt.Errorf("error reading config file, %s", err)
 	}
 
 	// Unmarshal the config into a struct
-	var cfg config
+	var cfg Qernalconfig
 	if err := viper.Unmarshal(&cfg); err != nil {
-		return "", fmt.Errorf("unable to decode into struct, %v", err)
+		return Qernalconfig{}, fmt.Errorf("unable to decode into struct, %v", err)
 	}
 
-	return cfg.Token, nil
+	return cfg, nil
 }
 
+// TODO: use viper to only save update values
 func saveConfig(token string) error {
-	cfg := &config{Token: token}
+	cfg := &Qernalconfig{Token: token}
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
