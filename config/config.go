@@ -24,7 +24,7 @@ type Config struct {
 	Token string `yaml:"token"`
 }
 
-func LoadConfig() {
+func Load() {
 
 	token, found := os.LookupEnv("QERNAL_TOKEN")
 
