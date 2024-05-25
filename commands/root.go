@@ -4,6 +4,8 @@ import (
 	"os"
 
 	"github.com/qernal/cli-qernal/commands/auth"
+	"github.com/qernal/cli-qernal/commands/secrets"
+	"github.com/qernal/cli-qernal/pkg/common"
 	"github.com/spf13/cobra"
 )
 
@@ -27,5 +29,6 @@ func Execute() {
 
 func init() {
 	RootCmd.AddCommand(auth.AuthCmd)
-
+	RootCmd.AddCommand(secrets.SecretsCmd)
+	RootCmd.PersistentFlags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 }
