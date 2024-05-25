@@ -1,4 +1,4 @@
-package encrypt
+package secrets
 
 import (
 	"bufio"
