@@ -26,6 +26,18 @@ var (
 
 	inputStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 	titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("63"))
+
+	JsonStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("205")).
+			Padding(1).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("62"))
+
+	PlainTextStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("244")).
+			Padding(1).
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("240"))
 )
 
 // Function to create and run the bubbletea model
