@@ -24,6 +24,10 @@ var (
 			Foreground(lipgloss.Color("#FF0000")). // Red color
 			Bold(true)
 
+	WarningStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFFF00")). // Yellow color
+			Bold(true)
+
 	inputStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 	titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("63"))
 
