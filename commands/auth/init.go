@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
 
 	"github.com/qernal/cli-qernal/charm"
@@ -49,7 +50,9 @@ func GetQernalToken() (string, error) {
 
 	// 2. Check config file
 	if config, err := readConfig(cfgPath); err == nil {
-
+		if err := validatePermissions(cfgPath); err != nil {
+			fmt.Println(charm.WarningStyle.Render(err.Error())) // Use custom style
+		}
 		return config.Token, nil
 	} else if os.IsNotExist(err) {
 		// File doesn't exist, continue to prompt user
@@ -97,5 +100,26 @@ func saveConfig(token string) error {
 	if err := os.MkdirAll(filepath.Dir(cfgPath), 0755); err != nil {
 		return err
 	}
-	return os.WriteFile(cfgPath, data, 0644)
+	return os.WriteFile(cfgPath, data, 0600)
+}
+
+func validatePermissions(filePath string) error {
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Check if owner has read and write access, others don't have any access
+	if fileInfo.Mode()&os.ModePerm != 0600 {
+		_, err := user.Current()
+		if err != nil {
+			return fmt.Errorf("failed to get current user: %w", err)
+		}
+		return fmt.Errorf(
+			"WARNING: Qernal configuration file is readable by others, set the permissions to 600 on file %s\nYou can run 'chmod 600 %s' to fix this.",
+			filePath,
+			filePath,
+		)
+	}
+	return nil
 }
