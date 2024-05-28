@@ -1,0 +1,26 @@
+# .goreleaser.yaml
+project_name: qernal-cli
+
+builds:
+  - id: "cli"
+    main: ./cmd/main.go
+    binary: qernal
+    goos:
+      - linux
+      - darwin
+      - windows
+
+signs:
+  - artifacts: checksum
+    cmd: gpg2
+    args:
+      - "--batch"
+      - "-u"
+      - "{{ .Env.GPG_FINGERPRINT }}"
+      - "--output"
+      - "${signature}"
+      - "--detach-sign"
+      - "${artifact}"
+
+release:
+  mode: append
