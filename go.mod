@@ -7,8 +7,9 @@ require (
 	github.com/charmbracelet/bubbletea v0.26.2
 	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
+	github.com/joho/godotenv v1.5.1
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/qernal/openapi-chaos-go-client v0.0.0-20240520132343-bbcbd803cb7c
+	github.com/qernal/openapi-chaos-go-client v0.0.0-20240529170325-1ff65532bd69
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	golang.org/x/crypto v0.16.0
