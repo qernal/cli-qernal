@@ -50,7 +50,6 @@ var (
 )
 
 func GetQernalToken() (string, error) {
-
 	// 1. Check environment variable
 	if token := os.Getenv("QERNAL_TOKEN"); token != "" {
 		fmt.Println(charm.SuccessStyle.Render("configuring CLI using environment variable ✅"))
@@ -134,7 +133,6 @@ func validatePermissions(filePath string) error {
 }
 
 func ValidateToken(token string) error {
-
 	pattern := `^([^@]+)@([^@]+)$`
 
 	re := regexp.MustCompile(pattern)

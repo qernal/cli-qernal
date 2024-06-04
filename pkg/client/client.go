@@ -29,7 +29,9 @@ type QernalAPIClient struct {
 
 func New(ctx context.Context, token string) (client QernalAPIClient, err error) {
 
+
 	oauthClient := oauth.NewOauthClient(hostHydra)
+
 	err = oauthClient.ExtractClientIDAndClientSecretFromToken(token)
 	if err != nil {
 		return QernalAPIClient{}, err
@@ -43,7 +45,9 @@ func New(ctx context.Context, token string) (client QernalAPIClient, err error) 
 	configuration := &openapiclient.Configuration{
 		Servers: openapiclient.ServerConfigurations{
 			{
+
 				URL: hostChaos + "/v1",
+
 			},
 		},
 		DefaultHeader: map[string]string{
@@ -64,6 +68,7 @@ func (qc *QernalAPIClient) FetchDek(ctx context.Context, projectID string) (*ope
 		resData, httperr := ParseResponseData(httpres)
 		if httperr != nil {
 			return nil, fmt.Errorf("failed to fetch DEK key: unexpected HTTP error: %w", httperr)
+
 		}
 		return nil, fmt.Errorf("failed to fetch DEK key: unexpected error: %w, detail: %v", err, resData)
 	}
@@ -111,7 +116,6 @@ func EncryptLocalSecret(pk, secret string) (string, error) {
 
 	return base64.StdEncoding.EncodeToString(encrypted), nil
 }
-
 func getEnv(key, defaultValue string) string {
 	err := godotenv.Load()
 	if err != nil {
@@ -123,3 +127,4 @@ func getEnv(key, defaultValue string) string {
 	}
 	return defaultValue
 }
+
