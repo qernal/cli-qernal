@@ -1,12 +1,16 @@
 package auth
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
+	"regexp"
 
 	"github.com/qernal/cli-qernal/charm"
+	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
@@ -33,6 +37,11 @@ var (
 				return err
 			}
 
+			err = ValidateToken(token)
+			if err != nil {
+				return charm.RenderError("token validation failed:", err)
+			}
+
 			return saveConfig(token)
 		},
 	}
@@ -41,10 +50,10 @@ var (
 )
 
 func GetQernalToken() (string, error) {
+
 	// 1. Check environment variable
 	if token := os.Getenv("QERNAL_TOKEN"); token != "" {
 		fmt.Println(charm.SuccessStyle.Render("configuring CLI using environment variable ✅"))
-
 		return token, nil
 	}
 
@@ -121,5 +130,31 @@ func validatePermissions(filePath string) error {
 			filePath,
 		)
 	}
+	return nil
+}
+
+func ValidateToken(token string) error {
+
+	pattern := `^([^@]+)@([^@]+)$`
+
+	re := regexp.MustCompile(pattern)
+
+	// Check if the token matches the pattern
+	if !re.MatchString(token) {
+		return errors.New("invalid token format, expected format is clientid@clientsecret")
+	}
+
+	// Make request with token
+	ctx := context.Background()
+	qc, err := client.New(ctx, token)
+	if err != nil {
+		return fmt.Errorf("unable to create qernal client with token, %s", err.Error())
+	}
+	_, _, err = qc.OrganisationsAPI.OrganisationsList(ctx).Execute()
+
+	if err != nil {
+		return fmt.Errorf("token is invalid, HTTP request filed with: %s", err.Error())
+	}
+
 	return nil
 }
