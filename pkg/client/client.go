@@ -7,18 +7,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/qernal/cli-qernal/pkg/oauth"
 
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	openapiclient "github.com/qernal/openapi-chaos-go-client"
 	"golang.org/x/crypto/nacl/box"
 )
 
 var (
-	host_hydra = "https://hydra.qernal-bld.dev"
-	host_chaos = "https://chaos.qernal-bld.dev"
+	hostHydra = getEnv("HOST_HYDRA", "https://hydra.qernal.dev")
+	hostChaos = getEnv("HOST_CHAOS", "https://chaos.qernal.dev")
 )
 
 type QernalAPIClient struct {
@@ -27,7 +29,7 @@ type QernalAPIClient struct {
 
 func New(ctx context.Context, token string) (client QernalAPIClient, err error) {
 
-	oauthClient := oauth.NewOauthClient(host_hydra)
+	oauthClient := oauth.NewOauthClient(hostHydra)
 	err = oauthClient.ExtractClientIDAndClientSecretFromToken(token)
 	if err != nil {
 		return QernalAPIClient{}, err
@@ -41,7 +43,7 @@ func New(ctx context.Context, token string) (client QernalAPIClient, err error) 
 	configuration := &openapiclient.Configuration{
 		Servers: openapiclient.ServerConfigurations{
 			{
-				URL: host_chaos + "/v1",
+				URL: hostChaos + "/v1",
 			},
 		},
 		DefaultHeader: map[string]string{
@@ -57,12 +59,11 @@ func New(ctx context.Context, token string) (client QernalAPIClient, err error) 
 
 func (qc *QernalAPIClient) FetchDek(ctx context.Context, projectID string) (*openapiclient.SecretMetaResponse, error) {
 	keyRes, httpres, err := qc.SecretsAPI.ProjectsSecretsGet(ctx, projectID, "dek").Execute()
+	slog.Info(httpres.Status)
 	if err != nil {
 		resData, httperr := ParseResponseData(httpres)
-		ctx = tflog.SetField(ctx, "http response", httperr)
-		tflog.Error(ctx, "response from server")
 		if httperr != nil {
-			return nil, fmt.Errorf("failed to fetch DEK key: unexpected HTTP error: %w", err)
+			return nil, fmt.Errorf("failed to fetch DEK key: unexpected HTTP error: %w", httperr)
 		}
 		return nil, fmt.Errorf("failed to fetch DEK key: unexpected error: %w, detail: %v", err, resData)
 	}
@@ -109,4 +110,16 @@ func EncryptLocalSecret(pk, secret string) (string, error) {
 	encrypted := box.Seal(nonce[:], plaintextBytes, &nonce, &privateKeyArray, new([32]byte))
 
 	return base64.StdEncoding.EncodeToString(encrypted), nil
+}
+
+func getEnv(key, defaultValue string) string {
+	err := godotenv.Load()
+	if err != nil {
+		slog.Debug("falling back to default ")
+	}
+
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
 }
