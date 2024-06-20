@@ -134,7 +134,6 @@ func validatePermissions(filePath string) error {
 }
 
 func ValidateToken(token string) error {
-
 	pattern := `^([^@]+)@([^@]+)$`
 
 	re := regexp.MustCompile(pattern)

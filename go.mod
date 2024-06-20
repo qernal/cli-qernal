@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbles v0.18.0
 	github.com/charmbracelet/bubbletea v0.26.2
 	github.com/charmbracelet/lipgloss v0.10.0
+	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/qernal/openapi-chaos-go-client v0.0.0-20240529170325-1ff65532bd69
