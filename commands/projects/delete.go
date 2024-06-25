@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var projectID string
 var DeleteCmd = &cobra.Command{
 	Use:     "delete",
 	Aliases: []string{"rm"},
@@ -32,12 +31,12 @@ var DeleteCmd = &cobra.Command{
 			return charm.RenderError("error creating qernal client", err)
 		}
 
-		_, _, err = qc.ProjectsAPI.ProjectsDelete(ctx, projectID).Execute()
+		_, _, err = qc.ProjectsAPI.ProjectsDelete(ctx, projectId).Execute()
 		if err != nil {
-			return charm.RenderError("error creating qernal client", err)
+			return charm.RenderError("error deleting qernal project", err)
 		}
 
-		fmt.Println(charm.RenderWarning("sucessfully deleted project with ID: " + projectID))
+		fmt.Println(charm.RenderWarning("sucessfully deleted project with ID: " + projectId))
 
 		return nil
 
@@ -45,6 +44,6 @@ var DeleteCmd = &cobra.Command{
 }
 
 func init() {
-	DeleteCmd.Flags().StringVarP(&projectID, "project", "p", "", "Project ID")
+	DeleteCmd.Flags().StringVarP(&projectId, "project", "p", "", "Project ID")
 	DeleteCmd.MarkFlagRequired("project")
 }

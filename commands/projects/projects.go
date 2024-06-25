@@ -22,4 +22,5 @@ func init() {
 	ProjectsCmd.AddCommand(ProjectsListCmd)
 	ProjectsCmd.AddCommand(CreateCmd)
 	ProjectsCmd.AddCommand(DeleteCmd)
+	ProjectsCmd.AddCommand(updateCmd)
 }
