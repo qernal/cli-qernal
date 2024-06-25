@@ -63,6 +63,23 @@ func GetSensitiveInput(placeholder string, defaultValue string) (string, error) 
 	return finalModel.(model).textInput.Value(), nil
 }
 
+func GetTextInput(placeholder string, defaultValue string) (string, error) {
+	initialModel := model{
+		textInput: textinput.New(),
+	}
+	initialModel.textInput.Placeholder = placeholder
+	initialModel.textInput.SetValue(defaultValue)
+	initialModel.textInput.Focus()
+
+	p := tea.NewProgram(initialModel)
+	finalModel, err := p.Run()
+	if err != nil {
+		return "", err
+	}
+
+	return finalModel.(model).textInput.Value(), nil
+}
+
 // Bubbletea model
 type model struct {
 	textInput textinput.Model
