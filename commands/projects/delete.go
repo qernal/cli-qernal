@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var projectID string
 var DeleteCmd = &cobra.Command{
 	Use:     "delete",
 	Aliases: []string{"rm"},
@@ -45,6 +44,6 @@ var DeleteCmd = &cobra.Command{
 }
 
 func init() {
-	DeleteCmd.Flags().StringVarP(&projectID, "project", "p", "", "Project ID")
+	DeleteCmd.Flags().StringVarP(&projectId, "project", "p", "", "Project ID")
 	DeleteCmd.MarkFlagRequired("project")
 }
