@@ -33,20 +33,6 @@ var updateCmd = &cobra.Command{
 			return charm.RenderError("error creating qernal client", err)
 		}
 
-		if name == "" {
-			name, err = charm.GetTextInput("enter a new project name", "")
-			if err != nil {
-				return charm.RenderError("unable to parse input", err)
-			}
-		}
-
-		if orgID == "" {
-			orgID, err = charm.GetTextInput("enter organisation id", "")
-			if err != nil {
-				return charm.RenderError("unable to parse input", err)
-			}
-		}
-
 		patchResp, _, err := qc.ProjectsAPI.ProjectsUpdate(ctx, projectId).ProjectBodyPatch(openapi_chaos_client.ProjectBodyPatch{
 			OrgId: &orgID,
 			Name:  &name,
@@ -68,5 +54,5 @@ func init() {
 	updateCmd.Flags().StringVarP(&orgID, "organisation", "", "", "organisation of the project to be updated")
 
 	updateCmd.MarkFlagRequired("project")
-	// updateCmd.MarkFlagRequired("name")
+	updateCmd.MarkFlagRequired("name")
 }
