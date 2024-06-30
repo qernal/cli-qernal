@@ -12,3 +12,8 @@ func RenderError(message string, err ...error) error {
 	}
 	return errors.New(formattedMessage)
 }
+
+func RenderWarning(message string) string {
+	formattedMessage := WarningStyle.Render(message)
+	return formattedMessage
+}
