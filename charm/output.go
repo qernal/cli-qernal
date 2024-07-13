@@ -67,6 +67,7 @@ func RenderProjectTable(projects []openapi_chaos_client.ProjectResponse) string 
 	return t.View()
 }
 
+
 func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) string {
 
 	// Define styles
