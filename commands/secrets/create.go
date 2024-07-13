@@ -37,7 +37,7 @@ The secret value is read from stdin, allowing for secure input methods.`,
   echo <environment-value> | qernal secret create --name MyEnvSecret --type environment
 
   # Create a certificate secret
-  echo <cert-passphrase> | qernal secret create --name MyCertSecret --type certificate --public-key /path/to/public.key --private-key /path/to/private.key`,
+  qernal secret create --name MyCertSecret --type certificate --public-key /path/to/public.key --private-key /path/to/private.key`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
 			return charm.RenderError("No arguments expected. Please provide input through stdin.")
