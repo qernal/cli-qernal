@@ -15,8 +15,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var projectID string
-
 var EncryptCmd = &cobra.Command{
 	Use:     "encrypt",
 	Short:   "encrypt a secret from stdin",
@@ -83,7 +81,5 @@ var EncryptCmd = &cobra.Command{
 }
 
 func init() {
-	EncryptCmd.Flags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	EncryptCmd.MarkFlagRequired("project")
-
 }
