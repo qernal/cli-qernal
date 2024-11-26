@@ -1,21 +1,27 @@
 package commands
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/commands/projects"
 	"github.com/qernal/cli-qernal/commands/secrets"
+	"github.com/qernal/cli-qernal/pkg/build"
 	"github.com/qernal/cli-qernal/pkg/common"
 	"github.com/spf13/cobra"
 )
 
+var version bool
+
 var RootCmd = &cobra.Command{
 	Use:   "qernal",
-	Short: "CLI for interacting with qernal.com",
+	Short: fmt.Sprintf("CLI for interacting with Qernal\nVersion: %s", build.Version),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return cmd.Help()
+		if version {
+			versionCmd.Run(cmd, args)
+		} else {
+			cmd.Help()
 		}
 		return nil
 	},
@@ -29,6 +35,7 @@ func Execute() {
 }
 
 func init() {
+	RootCmd.Flags().BoolVarP(&version, "version", "v", false, "Print the version of the CLI")
 	RootCmd.AddCommand(auth.AuthCmd)
 	RootCmd.AddCommand(secrets.SecretsCmd)
 	RootCmd.AddCommand(projects.ProjectsCmd)
