@@ -37,6 +37,17 @@ var (
 				return err
 			}
 
+			// allow user to overwrite existing token
+			if len(token) > 0 {
+				fmt.Println(charm.WarningStyle.Render("Found an auth token, entering a new one will cause an overwrite"))
+				token, err = charm.GetSensitiveInput("Enter your token", "")
+				if err != nil {
+					fmt.Println(charm.ErrorStyle.Render(fmt.Sprintf("error retrieving input %s", err.Error())))
+					return err
+				}
+
+			}
+
 			err = ValidateToken(token)
 			if err != nil {
 				return charm.RenderError("token validation failed:", err)
