@@ -64,8 +64,6 @@ github.com/pelletier/go-toml/v2 v2.1.0/go.mod h1:tJU2Z3ZkXwnxa4DPO899bsyIoywizdU
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/qernal/openapi-chaos-go-client v0.0.0-20240520132343-bbcbd803cb7c h1:N1Il9iDUoj3eo33TkeDnigONV6vq7MBenup7Ms3MOCk=
-github.com/qernal/openapi-chaos-go-client v0.0.0-20240520132343-bbcbd803cb7c/go.mod h1:V03TW7A8DLMBBZz1RGvIWog7Hfla2uPbNBIcMhg8bX8=
 github.com/qernal/openapi-chaos-go-client v0.0.0-20240529170325-1ff65532bd69 h1:URKCFmsKxioF/TPJHqMuhnitp05h0jLeiRvb7OP7MwA=
 github.com/qernal/openapi-chaos-go-client v0.0.0-20240529170325-1ff65532bd69/go.mod h1:V03TW7A8DLMBBZz1RGvIWog7Hfla2uPbNBIcMhg8bX8=
 github.com/rivo/uniseg v0.1.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
