@@ -28,10 +28,10 @@ var CreateCmd = &cobra.Command{
 		ctx := context.Background()
 		token, err := auth.GetQernalToken()
 		if err != nil {
-			return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
+			return charm.RenderError("unable to retrieive qernal token, run qernal auth login if you haven't")
 
 		}
-		qc, err := client.New(ctx, token)
+		qc, err := client.New(ctx, nil, nil, token)
 		if err != nil {
 			return charm.RenderError("", err)
 		}

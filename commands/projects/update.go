@@ -24,11 +24,11 @@ var updateCmd = &cobra.Command{
 		ctx := context.Background()
 		token, err := auth.GetQernalToken()
 		if err != nil {
-			return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
+			return charm.RenderError("unable to retrieive  qernal token, run qernal auth login if you haven't")
 
 		}
 
-		qc, err := client.New(ctx, token)
+		qc, err := client.New(ctx, nil, nil, token)
 		if err != nil {
 			return charm.RenderError("error creating qernal client", err)
 		}
@@ -41,7 +41,7 @@ var updateCmd = &cobra.Command{
 			return charm.RenderError(fmt.Sprintf("unable to update project, patch failed with: %s", err))
 		}
 
-		fmt.Println(charm.RenderWarning("sucessfully updated project name to: " + patchResp.Name))
+		fmt.Println(charm.RenderWarning("successfully updated project name to: " + patchResp.Name))
 
 		return nil
 

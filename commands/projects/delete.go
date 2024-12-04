@@ -22,11 +22,11 @@ var DeleteCmd = &cobra.Command{
 		ctx := context.Background()
 		token, err := auth.GetQernalToken()
 		if err != nil {
-			return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
+			return charm.RenderError("unable to retrieive qernal token, run qernal auth login if you haven't")
 
 		}
 
-		qc, err := client.New(ctx, token)
+		qc, err := client.New(ctx, nil, nil, token)
 		if err != nil {
 			return charm.RenderError("error creating qernal client", err)
 		}
@@ -36,7 +36,7 @@ var DeleteCmd = &cobra.Command{
 			return charm.RenderError("error deleting qernal project", err)
 		}
 
-		fmt.Println(charm.RenderWarning("sucessfully deleted project with ID: " + projectId))
+		fmt.Println(charm.RenderWarning("successfully deleted project with ID: " + projectId))
 
 		return nil
 

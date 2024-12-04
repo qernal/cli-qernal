@@ -55,10 +55,10 @@ The secret value is read from stdin, allowing for secure input methods.`,
 		token, err := auth.GetQernalToken()
 
 		if err != nil {
-			return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
+			return charm.RenderError("unable to retrieive qernal token, run qernal auth login if you haven't")
 
 		}
-		qc, err := client.New(ctx, token)
+		qc, err := client.New(ctx, nil, nil, token)
 		if err != nil {
 			return charm.RenderError("", err)
 		}
@@ -114,7 +114,7 @@ The secret value is read from stdin, allowing for secure input methods.`,
 				},
 			}).Execute()
 			if err != nil {
-				charm.RenderError("unable to create envrionment secret", err)
+				charm.RenderError("unable to create environment secret", err)
 
 			}
 		case "certificate":

@@ -18,18 +18,26 @@ import (
 	"golang.org/x/crypto/nacl/box"
 )
 
-var (
-	hostHydra = getEnv("HOST_HYDRA", "https://hydra.qernal.dev")
-	hostChaos = getEnv("HOST_CHAOS", "https://chaos.qernal.dev")
-)
-
 type QernalAPIClient struct {
 	openapiclient.APIClient
 }
 
-func New(ctx context.Context, token string) (client QernalAPIClient, err error) {
+func New(ctx context.Context, hostHydra, hostChaos *string, token string) (client QernalAPIClient, err error) {
 
-	oauthClient := oauth.NewOauthClient(hostHydra)
+	defaultHostHydra := getEnv("HOST_HYDRA", "https://hydra.qernal.dev")
+	defaultHostChaos := getEnv("HOST_CHAOS", "https://chaos.qernal.dev")
+
+	hydra := defaultHostHydra
+	chaos := defaultHostChaos
+
+	if hostHydra != nil {
+		hydra = *hostHydra
+	}
+	if hostChaos != nil {
+		chaos = *hostChaos
+	}
+
+	oauthClient := oauth.NewOauthClient(hydra)
 	err = oauthClient.ExtractClientIDAndClientSecretFromToken(token)
 	if err != nil {
 		return QernalAPIClient{}, err
@@ -43,7 +51,7 @@ func New(ctx context.Context, token string) (client QernalAPIClient, err error) 
 	configuration := &openapiclient.Configuration{
 		Servers: openapiclient.ServerConfigurations{
 			{
-				URL: hostChaos + "/v1",
+				URL: chaos + "/v1",
 			},
 		},
 		DefaultHeader: map[string]string{

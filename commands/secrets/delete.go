@@ -17,10 +17,10 @@ var DeleteCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		token, err := auth.GetQernalToken()
 		if err != nil {
-			return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
+			return charm.RenderError("unable to retrieive qernal token, run qernal auth login if you haven't")
 		}
 		ctx := context.Background()
-		qc, err := client.New(ctx, token)
+		qc, err := client.New(ctx, nil, nil, token)
 		if err != nil {
 			return charm.RenderError("", err)
 		}
@@ -29,7 +29,7 @@ var DeleteCmd = &cobra.Command{
 			charm.RenderError("unable to delete secret,  request failed with:", err)
 		}
 
-		fmt.Println(charm.RenderWarning("sucessfully deleted project with name: " + secretName))
+		fmt.Println(charm.RenderWarning("successfully deleted project with name: " + secretName))
 
 		return nil
 	},
