@@ -19,8 +19,8 @@ import (
 )
 
 var (
-	hostHydra = getEnv("HOST_HYDRA", "https://hydra.qernal.dev")
-	hostChaos = getEnv("HOST_CHAOS", "https://chaos.qernal.dev")
+	hostHydra = GetEnv("HOST_HYDRA", "https://hydra.qernal.dev")
+	hostChaos = GetEnv("HOST_CHAOS", "https://chaos.qernal.dev")
 )
 
 type QernalAPIClient struct {
@@ -107,7 +107,7 @@ func EncryptLocalSecret(pk, secret string) (string, error) {
 	return base64.StdEncoding.EncodeToString(encrypted), nil
 }
 
-func getEnv(key, defaultValue string) string {
+func GetEnv(key, defaultValue string) string {
 	err := godotenv.Load()
 	if err != nil {
 		slog.Debug("falling back to default ")
