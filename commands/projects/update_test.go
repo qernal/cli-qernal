@@ -3,29 +3,28 @@ package projects
 import (
 	"bytes"
 	"encoding/json"
-	"os"
 	"testing"
 
-	"github.com/qernal/cli-qernal/charm"
+	"github.com/google/uuid"
 	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/stretchr/testify/assert"
-	"github.com/teris-io/shortid"
 )
 
 func TestProjectUpdate(t *testing.T) {
-	orgID := os.Getenv("QERNAL_TEST_ORG")
-	if orgID == "" {
-		t.Fatal(charm.ErrorStyle.Render("qernal test org is not set"))
-
+	orgID, _, err := helpers.CreateOrg()
+	if err != nil {
+		t.Fatal("failed to create org")
 	}
+	projectname := uuid.NewString()
+
 	var expectedJson struct {
 		ProjectName    string `json:"project_name"`
 		OrganisationID string `json:"organisation_id"`
 		ProjectID      string `json:"project_id"`
 	}
-	projectname, _ := shortid.Generate()
-	updatedPojectName, _ := shortid.Generate()
+
+	updatedPojectName := uuid.NewString()
 
 	//set stdout to a buffer we control
 	var buf bytes.Buffer
@@ -34,7 +33,7 @@ func TestProjectUpdate(t *testing.T) {
 
 	createCmd := NewCreateCmd(printer)
 	createCmd.SetArgs([]string{"create", "--name", projectname, "--organisation", orgID, "--output", "json"})
-	err := createCmd.Execute()
+	err = createCmd.Execute()
 	if err != nil {
 		t.Fatalf("unable to create to project, command failed with %v", err)
 	}
