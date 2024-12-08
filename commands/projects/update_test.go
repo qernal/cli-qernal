@@ -7,7 +7,8 @@ import (
 	"testing"
 
 	"github.com/qernal/cli-qernal/charm"
-	utils "github.com/qernal/cli-qernal/pkg/uitls"
+	"github.com/qernal/cli-qernal/pkg/helpers"
+	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/teris-io/shortid"
 )
@@ -57,12 +58,8 @@ func TestProjectUpdate(t *testing.T) {
 	assert.Contains(t, buf.String(), updatedPojectName)
 
 	t.Cleanup(func() {
-		cmd := NewDeleteCmd(printer)
-		cmd.SetArgs([]string{"--project", updatedPojectName})
-		err := cmd.Execute()
-		if err != nil {
-			t.Fatalf("unable to delete project with name %s: %v", updatedPojectName, err)
-		}
+		helpers.DeleteProj(expectedJson.OrganisationID)
+		helpers.DeleteProj(expectedJson.ProjectID)
 	})
 
 }

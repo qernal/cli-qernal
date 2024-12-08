@@ -2,7 +2,7 @@ package projects
 
 import (
 	"github.com/qernal/cli-qernal/charm"
-	utils "github.com/qernal/cli-qernal/pkg/uitls"
+	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
 

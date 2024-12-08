@@ -3,23 +3,21 @@ package projects
 import (
 	"bytes"
 	"encoding/json"
-	"os"
 	"testing"
 
-	"github.com/qernal/cli-qernal/charm"
-	utils "github.com/qernal/cli-qernal/pkg/uitls"
+	"github.com/google/uuid"
+	"github.com/qernal/cli-qernal/pkg/helpers"
+	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/teris-io/shortid"
 )
 
 func TestProjectCreate(t *testing.T) {
-	orgID := os.Getenv("QERNAL_TEST_ORG")
-	if orgID == "" {
-		t.Fatal(charm.ErrorStyle.Render("qernal test org is not set"))
-
+	orgID, _, err := helpers.CreateOrg()
+	if err != nil {
+		t.Fatal("failed to create org")
 	}
-	projectname, _ := shortid.Generate()
+	projectname := uuid.NewString()
 
 	//set stdout to a buffer we control
 	var buf bytes.Buffer
@@ -68,11 +66,8 @@ func TestProjectCreate(t *testing.T) {
 		})
 	}
 	t.Cleanup(func() {
-		cmd := NewDeleteCmd(printer)
-		cmd.SetArgs([]string{"--project", projectname})
-		err := cmd.Execute()
-		if err != nil {
-			t.Fatalf("unable to delete project with name %s: %v", projectname, err)
-		}
+		helpers.DeleteProj(expectedJson.OrganisationID)
+		helpers.DeleteProj(expectedJson.ProjectID)
+
 	})
 }

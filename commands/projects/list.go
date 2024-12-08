@@ -8,7 +8,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
-	utils "github.com/qernal/cli-qernal/pkg/uitls"
+	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
