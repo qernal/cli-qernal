@@ -14,7 +14,7 @@ import (
 func TestProjectUpdate(t *testing.T) {
 	orgID, _, err := helpers.CreateOrg()
 	if err != nil {
-		t.Fatal("failed to create org")
+		t.Fatalf("failed to create org: %v", err)
 	}
 	projectname := uuid.NewString()
 
