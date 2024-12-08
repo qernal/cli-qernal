@@ -5,9 +5,9 @@ import (
 	"runtime"
 
 	"github.com/qernal/cli-qernal/pkg/build"
+	"github.com/qernal/cli-qernal/pkg/utils"
 
 	"github.com/qernal/cli-qernal/pkg/common"
-	utils "github.com/qernal/cli-qernal/pkg/uitls"
 	"github.com/spf13/cobra"
 )
 
