@@ -19,8 +19,8 @@ import (
 )
 
 var (
-	hostHydra = GetEnv("HOST_HYDRA", "https://hydra.qernal.dev")
-	hostChaos = GetEnv("HOST_CHAOS", "https://chaos.qernal.dev")
+	hostHydra = GetEnv("QERNAL_HOST_HYDRA", "https://hydra.qernal.dev")
+	hostChaos = GetEnv("QERNAL_HOST_CHAOS", "https://chaos.qernal.dev")
 )
 
 type QernalAPIClient struct {
