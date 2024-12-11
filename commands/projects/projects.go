@@ -24,5 +24,5 @@ func init() {
 	ProjectsCmd.AddCommand(ProjectsListCmd)
 	ProjectsCmd.AddCommand(NewCreateCmd(printer))
 	ProjectsCmd.AddCommand(NewDeleteCmd(printer))
-	ProjectsCmd.AddCommand(NewupdateCmd(printer))
+	ProjectsCmd.AddCommand(NewUpdateCmd(printer))
 }

@@ -43,7 +43,7 @@ func TestProjectUpdate(t *testing.T) {
 	}
 	buf.Reset()
 
-	updatecmd := NewupdateCmd(printer)
+	updatecmd := NewUpdateCmd(printer)
 	// "qernal projects update --project=<project ID> --org <org ID> --name <name>"
 	updateArgs := []string{"update", "--project", expectedJson.ProjectID, "--organisation", expectedJson.OrganisationID, "--name", updatedPojectName, "--output", "json"}
 
