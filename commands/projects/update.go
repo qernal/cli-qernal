@@ -16,7 +16,7 @@ import (
 var name string
 var projectId string
 
-func NewupdateCmd(printer *utils.Printer) *cobra.Command {
+func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update",
 		Aliases: []string{"edit"},
