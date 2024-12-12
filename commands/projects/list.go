@@ -8,7 +8,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
-	utils "github.com/qernal/cli-qernal/pkg/uitls"
+	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +21,7 @@ var ProjectsListCmd = &cobra.Command{
 
 		token, err := auth.GetQernalToken()
 		if err != nil {
-			return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
+			return charm.RenderError("unable to retrieive qernal token, run qernal auth login if you haven't")
 		}
 		ctx := context.Background()
 		qc, err := client.New(ctx, token)
