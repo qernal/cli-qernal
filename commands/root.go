@@ -36,8 +36,9 @@ func Execute() {
 
 func init() {
 	RootCmd.Flags().BoolVarP(&version, "version", "v", false, "Print the version of the CLI")
+	RootCmd.PersistentFlags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 	RootCmd.AddCommand(auth.AuthCmd)
 	RootCmd.AddCommand(secrets.SecretsCmd)
 	RootCmd.AddCommand(projects.ProjectsCmd)
-	RootCmd.PersistentFlags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
+
 }

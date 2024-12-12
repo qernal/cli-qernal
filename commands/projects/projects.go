@@ -2,6 +2,7 @@ package projects
 
 import (
 	"github.com/qernal/cli-qernal/charm"
+	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -19,8 +20,9 @@ var ProjectsCmd = &cobra.Command{
 }
 
 func init() {
+	printer := utils.NewPrinter()
 	ProjectsCmd.AddCommand(ProjectsListCmd)
-	ProjectsCmd.AddCommand(CreateCmd)
-	ProjectsCmd.AddCommand(DeleteCmd)
-	ProjectsCmd.AddCommand(updateCmd)
+	ProjectsCmd.AddCommand(NewCreateCmd(printer))
+	ProjectsCmd.AddCommand(NewDeleteCmd(printer))
+	ProjectsCmd.AddCommand(NewUpdateCmd(printer))
 }
