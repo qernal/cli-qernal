@@ -31,7 +31,7 @@ var checkCmd = &cobra.Command{
 
 		// should fail if token is invalid
 		ctx := context.Background()
-		_, err = client.New(ctx, tokenToUse)
+		_, err = client.New(ctx, nil, nil, tokenToUse)
 		if err != nil {
 			return charm.RenderError("❌ invalid token, auth check failed with", err)
 		}

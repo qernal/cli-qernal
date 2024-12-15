@@ -18,7 +18,7 @@ func CreateOrg() (string, string, error) {
 		return "", "", err
 	}
 	ctx := context.Background()
-	client, err := client.New(ctx, token)
+	client, err := client.New(ctx, nil, nil, token)
 	if err != nil {
 		return "", "", err
 	}
@@ -42,7 +42,7 @@ func DeleteOrg(orgid string) {
 	}
 
 	ctx := context.Background()
-	client, err := client.New(ctx, token)
+	client, err := client.New(ctx, nil, nil, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, charm.RenderError("unable to create qernal client", err).Error())
 	}
@@ -59,7 +59,7 @@ func CreateProj(orgid string) (string, string, error) {
 		return "", "", err
 	}
 	ctx := context.Background()
-	client, err := client.New(ctx, token)
+	client, err := client.New(ctx, nil, nil, token)
 	if err != nil {
 		return "", "", err
 	}
@@ -84,7 +84,7 @@ func DeleteProj(projid string) {
 	}
 
 	ctx := context.Background()
-	client, err := client.New(ctx, token)
+	client, err := client.New(ctx, nil, nil, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, charm.RenderError("unable to create qernal client", err).Error())
 	}

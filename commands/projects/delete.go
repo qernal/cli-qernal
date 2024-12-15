@@ -29,7 +29,7 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 
 			}
 
-			qc, err := client.New(ctx, token)
+			qc, err := client.New(ctx, nil, nil, token)
 			if err != nil {
 				return charm.RenderError("error creating qernal client", err)
 			}

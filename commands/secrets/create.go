@@ -58,7 +58,7 @@ The secret value is read from stdin, allowing for secure input methods.`,
 			return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
 
 		}
-		qc, err := client.New(ctx, token)
+		qc, err := client.New(ctx, nil, nil, token)
 		if err != nil {
 			return charm.RenderError("", err)
 		}
