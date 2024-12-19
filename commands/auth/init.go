@@ -156,7 +156,7 @@ func ValidateToken(token string) error {
 
 	// Make request with token
 	ctx := context.Background()
-	qc, err := client.New(ctx, token)
+	qc, err := client.New(ctx, nil, nil, token)
 	if err != nil {
 		return fmt.Errorf("unable to create qernal client with token, %s", err.Error())
 	}
