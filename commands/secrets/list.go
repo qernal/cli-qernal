@@ -23,7 +23,7 @@ var SecretsListCmd = &cobra.Command{
 			return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
 		}
 		ctx := context.Background()
-		qc, err := client.New(ctx, token)
+		qc, err := client.New(ctx, nil, nil, token)
 		if err != nil {
 			return charm.RenderError("", err)
 		}

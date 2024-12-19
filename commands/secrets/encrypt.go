@@ -44,7 +44,7 @@ var EncryptCmd = &cobra.Command{
 
 		}
 
-		qc, err := client.New(ctx, token)
+		qc, err := client.New(ctx, nil, nil, token)
 
 		if err != nil {
 			return charm.RenderError("", err)
