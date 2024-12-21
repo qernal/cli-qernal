@@ -2,8 +2,17 @@ package helpers
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
 	"fmt"
+	"math/big"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/qernal/cli-qernal/charm"
@@ -94,4 +103,94 @@ func DeleteProj(projid string) {
 		fmt.Fprintf(os.Stderr, "Error when calling `ProjectsAPI.ProjectsDelete``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
+}
+
+// CreateTempSecret creates an environment secret in the specified project
+func CreateTempSecret(secretName, projectID string) (string, error) {
+	token, err := auth.GetQernalToken()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, charm.RenderError("obtaining token failed with:", err).Error())
+		return "", err
+	}
+
+	ctx := context.Background()
+	qc, err := client.New(ctx, nil, nil, token)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, charm.RenderError("unable to create qernal client", err).Error())
+		return "", err
+	}
+
+	dek, err := qc.FetchDek(ctx, projectID)
+	if err != nil {
+		return "", err
+	}
+
+	encryptedValue, err := client.EncryptLocalSecret(dek.Payload.SecretMetaResponseDek.Public, uuid.NewString())
+	if err != nil {
+		return "", err
+
+	}
+
+	encryptionRef := fmt.Sprintf(`keys/dek/%d`, dek.Revision)
+	resp, _, err := qc.SecretsAPI.ProjectsSecretsCreate(ctx, projectID).SecretBody(openapi_chaos_client.SecretBody{
+		Name:       strings.ToUpper(secretName),
+		Encryption: encryptionRef,
+		Type:       openapi_chaos_client.SECRETCREATETYPE_ENVIRONMENT,
+		Payload: openapi_chaos_client.SecretCreatePayload{
+			SecretEnvironment: &openapi_chaos_client.SecretEnvironment{
+				EnvironmentValue: encryptedValue,
+			},
+		},
+	}).Execute()
+	if err != nil {
+		return "", err
+	}
+	return resp.Name, nil
+}
+
+func GenerateSelfSignedCert() ([]byte, []byte, error) {
+	// Generate a new ECDSA private key
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Create a self-signed certificate template
+	template := x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			Organization: []string{"Example Corp"},
+		},
+		NotBefore: time.Now(),
+		NotAfter:  time.Now().Add(365 * 24 * time.Hour), // Valid for 1 year
+		KeyUsage:  x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage: []x509.ExtKeyUsage{
+			x509.ExtKeyUsageServerAuth,
+		},
+		BasicConstraintsValid: true,
+	}
+
+	// Create the self-signed certificate
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Encode the public key (certificate) to PEM
+	certPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: derBytes,
+	})
+
+	// Encode the private key to PEM
+	privateKeyBytes, err := x509.MarshalECPrivateKey(privateKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "EC PRIVATE KEY",
+		Bytes: privateKeyBytes,
+	})
+
+	return certPEM, privateKeyPEM, nil
 }
