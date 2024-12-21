@@ -38,7 +38,7 @@ func TestEncryptCmd(t *testing.T) {
 	}
 
 	var encryptionOutput struct {
-		RevisionID     string `json:"revision_id"`
+		RevisionID     int32  `json:"revision_id"`
 		EncryptedValue string `json:"encrypted_value"`
 	}
 
