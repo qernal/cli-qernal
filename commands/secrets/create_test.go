@@ -147,7 +147,6 @@ func TestCertCreate(t *testing.T) {
 
 	t.Cleanup(func() {
 		helpers.DeleteOrg(orgID)
-		helpers.DeleteProj(projectID)
 		os.Remove(certFilePath)
 		os.Remove(keyFilePath)
 	})

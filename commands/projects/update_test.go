@@ -57,8 +57,7 @@ func TestProjectUpdate(t *testing.T) {
 	assert.Contains(t, buf.String(), updatedPojectName)
 
 	t.Cleanup(func() {
-		helpers.DeleteProj(expectedJson.OrganisationID)
-		helpers.DeleteProj(expectedJson.ProjectID)
+		helpers.DeleteOrg(expectedJson.OrganisationID)
 	})
 
 }
