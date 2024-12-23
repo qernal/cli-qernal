@@ -22,6 +22,7 @@ type QernalAPIClient struct {
 	openapiclient.APIClient
 }
 
+// New creates a QernalAPIClient with the specified context, optional Hydra and Chaos host URLs, and authentication token.
 func New(ctx context.Context, hostHydra, hostChaos *string, token string) (client QernalAPIClient, err error) {
 
 	defaultHostHydra := GetEnv("QERNAL_HOST_HYDRA", "https://hydra.qernal.dev")
@@ -65,6 +66,7 @@ func New(ctx context.Context, hostHydra, hostChaos *string, token string) (clien
 	}, nil
 }
 
+// FetchDek retrieves the DEK for a given project by its project ID.
 func (qc *QernalAPIClient) FetchDek(ctx context.Context, projectID string) (*openapiclient.SecretMetaResponse, error) {
 	keyRes, httpres, err := qc.SecretsAPI.ProjectsSecretsGet(ctx, projectID, "dek").Execute()
 	slog.Info(httpres.Status)
