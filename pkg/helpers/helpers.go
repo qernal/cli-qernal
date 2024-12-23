@@ -13,7 +13,6 @@ import (
 	"math/big"
 	math_rand "math/rand"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -108,47 +107,6 @@ func DeleteProj(projid string) {
 }
 
 // CreateTempSecret creates an environment secret in the specified project
-func CreateTempSecret(secretName, projectID string) (string, error) {
-	token, err := auth.GetQernalToken()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("obtaining token failed with:", err).Error())
-		return "", err
-	}
-
-	ctx := context.Background()
-	qc, err := client.New(ctx, nil, nil, token)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("unable to create qernal client", err).Error())
-		return "", err
-	}
-
-	dek, err := qc.FetchDek(ctx, projectID)
-	if err != nil {
-		return "", err
-	}
-
-	encryptedValue, err := client.EncryptLocalSecret(dek.Payload.SecretMetaResponseDek.Public, uuid.NewString())
-	if err != nil {
-		return "", err
-
-	}
-
-	encryptionRef := fmt.Sprintf(`keys/dek/%d`, dek.Revision)
-	resp, _, err := qc.SecretsAPI.ProjectsSecretsCreate(ctx, projectID).SecretBody(openapi_chaos_client.SecretBody{
-		Name:       strings.ToUpper(secretName),
-		Encryption: encryptionRef,
-		Type:       openapi_chaos_client.SECRETCREATETYPE_ENVIRONMENT,
-		Payload: openapi_chaos_client.SecretCreatePayload{
-			SecretEnvironment: &openapi_chaos_client.SecretEnvironment{
-				EnvironmentValue: encryptedValue,
-			},
-		},
-	}).Execute()
-	if err != nil {
-		return "", err
-	}
-	return resp.Name, nil
-}
 
 func GenerateSelfSignedCert() ([]byte, []byte, error) {
 	// Generate a new ECDSA private key

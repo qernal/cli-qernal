@@ -21,7 +21,7 @@ func TestDeleteCmd(t *testing.T) {
 		t.Fatalf("failed to create org: %v", err)
 	}
 
-	secretName, err := helpers.CreateTempSecret(uuid.NewString(), projectID)
+	secretName, _, err := helpers.CreateSecretEnv(projectID, uuid.NewString())
 	if err != nil {
 		t.Fatalf("failed to create org: %v", err)
 	}
