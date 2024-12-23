@@ -2,6 +2,7 @@ package secrets
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -21,7 +22,7 @@ func TestDeleteCmd(t *testing.T) {
 		t.Fatalf("failed to create org: %v", err)
 	}
 
-	secretName, _, err := helpers.CreateSecretEnv(projectID, uuid.NewString())
+	secretName, _, err := helpers.CreateSecretEnv(projectID, strings.ToUpper(uuid.NewString()))
 	if err != nil {
 		t.Fatalf("failed to create org: %v", err)
 	}
