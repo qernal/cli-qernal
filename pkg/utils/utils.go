@@ -5,9 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/qernal/cli-qernal/charm"
+)
+
+var (
+	DefaultLogLevel = slog.LevelInfo
 )
 
 func PrettyPrintJSON(data interface{}) (string, error) {
@@ -41,12 +47,30 @@ func FormatOutput(data interface{}, outputType string) string {
 
 type Printer struct {
 	resourceOut io.Writer
+	//mostly for debug level logs, for rendering errors, see charm package
+	Logger *slog.Logger
 }
 
-// NewPrinter creates a new Printer instance.
+// NewPrinter creates a new Printer instance
 func NewPrinter() *Printer {
+	// Initialize a LevelVar with the default level set to Info
+	lvl := new(slog.LevelVar)
+	lvl.Set(slog.LevelInfo)
+
+	// Check if the LOG_LEVEL environment variable is set to "debug"
+	envLogLevel := os.Getenv("LOG_LEVEL")
+	if strings.ToLower(envLogLevel) == "debug" {
+		lvl.Set(slog.LevelDebug)
+	}
+
+	// Initialize the logger with the specified log level
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: lvl,
+	}))
+
 	return &Printer{
-		resourceOut: os.Stdout, // Default output to stdout
+		resourceOut: os.Stdout,
+		Logger:      logger,
 	}
 }
 
