@@ -106,8 +106,6 @@ func DeleteProj(projid string) {
 	}
 }
 
-// CreateTempSecret creates an environment secret in the specified project
-
 func GenerateSelfSignedCert() ([]byte, []byte, error) {
 	// Generate a new ECDSA private key
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)

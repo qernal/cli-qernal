@@ -12,10 +12,6 @@ import (
 	"github.com/qernal/cli-qernal/charm"
 )
 
-var (
-	DefaultLogLevel = slog.LevelInfo
-)
-
 func PrettyPrintJSON(data interface{}) (string, error) {
 	prettyJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
