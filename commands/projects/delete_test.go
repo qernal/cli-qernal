@@ -17,7 +17,7 @@ func TestDeleteCmd(t *testing.T) {
 	}
 	_, projectName, err := helpers.CreateProj(orgID)
 	if err != nil {
-		t.Fatalf("failed to create org: %v", err)
+		t.Fatalf("failed to create project: %v", err)
 	}
 
 	args := []string{"--project", projectName}
