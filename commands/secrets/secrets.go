@@ -3,6 +3,7 @@ package secrets
 import (
 	"errors"
 
+	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -23,11 +24,19 @@ var SecretsCmd = &cobra.Command{
 }
 
 func init() {
+	printer := utils.NewPrinter()
 	SecretsCmd.AddCommand(SecretsListCmd)
-	SecretsCmd.AddCommand(EncryptCmd)
-	SecretsCmd.AddCommand(DeleteCmd)
-	SecretsCmd.AddCommand(CreateCmd)
+	SecretsCmd.AddCommand(NewEncryptCmd(printer))
+	SecretsCmd.AddCommand(NewDeleteCmd(printer))
+	SecretsCmd.AddCommand(NewCreateCmd(printer))
 	SecretsCmd.PersistentFlags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	SecretsCmd.PersistentFlags().StringVarP(&secretName, "name", "n", "", "name of the secret")
 
+	NewCreateCmd(printer).MarkFlagRequired("name")
+	NewCreateCmd(printer).MarkFlagRequired("project")
+	NewCreateCmd(printer).MarkFlagRequired("public-key")
+	NewCreateCmd(printer).MarkFlagRequired("private-key")
+
+	NewDeleteCmd(printer).MarkFlagRequired("name")
+	NewDeleteCmd(printer).MarkFlagRequired("project")
 }
