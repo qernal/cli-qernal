@@ -66,8 +66,6 @@ func TestProjectCreate(t *testing.T) {
 		})
 	}
 	t.Cleanup(func() {
-		helpers.DeleteProj(expectedJson.OrganisationID)
-		helpers.DeleteProj(expectedJson.ProjectID)
-
+		helpers.DeleteOrg(expectedJson.OrganisationID)
 	})
 }
