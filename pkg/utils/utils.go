@@ -110,5 +110,26 @@ func (p *Printer) PrintResource(data string) {
 	if p.resourceOut != nil {
 		out = p.resourceOut
 	}
+
+	// Since we're keeping the string parameter, we'll check if it's empty
+	if len(strings.TrimSpace(data)) == 0 {
+		fmt.Fprintln(out, "no data found, cannot print nil value")
+		return
+	}
+
 	fmt.Fprintln(out, data)
+}
+
+func (p *Printer) PrintResourceR(data *string) {
+	var out io.Writer = os.Stdout
+	if p.resourceOut != nil {
+		out = p.resourceOut
+	}
+
+	if data == nil {
+		fmt.Fprintln(out, "no data found, cannot print nil value")
+		return
+	}
+
+	fmt.Fprintln(out, *data)
 }

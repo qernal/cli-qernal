@@ -79,6 +79,21 @@ func (qc *QernalAPIClient) FetchDek(ctx context.Context, projectID string) (*ope
 	}
 	return keyRes, nil
 }
+func (qc *QernalAPIClient) GetProjectByName(name string) (openapiclient.ProjectResponse, error) {
+	ctx := context.Background()
+	projectResp, httpRes, err := qc.ProjectsAPI.ProjectsList(ctx).FName(name).Execute()
+	if err != nil {
+		resData, httperr := ParseResponseData(httpRes)
+		if httperr != nil {
+			return openapiclient.ProjectResponse{}, fmt.Errorf("failed to fetch project by name: unexpected HTTP error: %w", httperr)
+		}
+		return openapiclient.ProjectResponse{}, fmt.Errorf("failed to fetch project by  name: unexpected error: %w, detail: %v", err, resData)
+	}
+	if len(projectResp.Data) <= 0 {
+		return openapiclient.ProjectResponse{}, fmt.Errorf("unable to find project with name %s", name)
+	}
+	return projectResp.Data[0], nil
+}
 
 func ParseResponseData(res *http.Response) (resData interface{}, err error) {
 	body, err := io.ReadAll(res.Body)
