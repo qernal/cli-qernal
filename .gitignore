@@ -1,3 +1,4 @@
 cmd/qernal
+tmp/
 cmd/.env
 dist/

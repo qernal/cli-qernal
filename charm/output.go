@@ -1,15 +1,20 @@
 package charm
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/olekukonko/tablewriter"
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 )
 
 func RenderProjectTable(projects []openapi_chaos_client.ProjectResponse) string {
+	if len(projects) <= 0 {
+		return RenderWarning("No projects associated with this account")
+	}
 	// Define styles
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
@@ -68,6 +73,9 @@ func RenderProjectTable(projects []openapi_chaos_client.ProjectResponse) string 
 }
 
 func RenderOrgTable(orgs []openapi_chaos_client.OrganisationResponse) string {
+	if len(orgs) <= 0 {
+		return RenderWarning("No organisations associated with this account")
+	}
 	// Define styles
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
@@ -126,7 +134,9 @@ func RenderOrgTable(orgs []openapi_chaos_client.OrganisationResponse) string {
 }
 
 func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) string {
-
+	if len(secrets) <= 0 {
+		return RenderWarning("No secrets associated with this project")
+	}
 	// Define styles
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
@@ -183,4 +193,39 @@ func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) strin
 	// Render the table
 	return t.View()
 
+}
+
+func RenderFuncTable(buf *bytes.Buffer, functions []openapi_chaos_client.Function) string {
+	if len(functions) <= 0 {
+		return RenderWarning("No functions associated with this project")
+	}
+
+	table := tablewriter.NewWriter(buf)
+	table.SetHeader([]string{"Name", "Func ID", "Version", "Description", "Secrets", "Image", "Port"})
+
+	data := [][]string{}
+	for _, f := range functions {
+		row := []string{
+			f.Name,
+			f.Id,
+			f.Version,
+			f.Description,
+			fmt.Sprintf("%d", len(f.Secrets)),
+			f.Image,
+			fmt.Sprintf("%d", f.Port),
+		}
+		data = append(data, row)
+	}
+
+	table.SetBorder(true)
+	table.AppendBulk(data)
+
+	// Add footer with total count
+	table.SetFooter([]string{"", "", "", "", "", fmt.Sprintf("Total: %d", len(functions)), ""})
+	table.SetFooterAlignment(tablewriter.ALIGN_RIGHT)
+
+	table.Render()
+
+	// Capture the output
+	return buf.String()
 }
