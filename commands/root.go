@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/qernal/cli-qernal/commands/auth"
+	"github.com/qernal/cli-qernal/commands/functions"
 	org "github.com/qernal/cli-qernal/commands/organisations"
 	"github.com/qernal/cli-qernal/commands/projects"
 	"github.com/qernal/cli-qernal/commands/secrets"
@@ -41,6 +42,7 @@ func init() {
 	RootCmd.AddCommand(auth.AuthCmd)
 	RootCmd.AddCommand(secrets.SecretsCmd)
 	RootCmd.AddCommand(projects.ProjectsCmd)
+	RootCmd.AddCommand(functions.FunctionCmd)
 	RootCmd.AddCommand(org.OrgCmd)
 
 }

@@ -2,6 +2,7 @@ package charm
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -173,6 +174,54 @@ func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) strin
 		table.WithRows(rows),
 		table.WithFocused(true),
 		table.WithHeight(len(secrets)),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = headerStyle
+	s.Cell = cellStyle
+	t.SetStyles(s)
+
+	// Render the table
+	return t.View()
+
+}
+func RenderFuncTable(functions []openapi_chaos_client.Function) string {
+
+	// Define styles
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		// Background(lipgloss.Color("#7D56F4")).
+		Padding(0, 2)
+
+	cellStyle := lipgloss.NewStyle().
+		Padding(0, 2)
+
+	columns := []table.Column{
+		{Title: "Name", Width: 17},
+		{Title: "Image", Width: 18},
+		{Title: "Description", Width: 17},
+		{Title: "Secrets", Width: 15},
+	}
+
+	// Prepare rows
+	var rows []table.Row
+	for _, function := range functions {
+		secrets := strconv.Itoa(len(function.Secrets))
+		row := table.Row{
+			function.Name,
+			function.Image,
+			function.Description,
+			secrets,
+		}
+		rows = append(rows, row)
+	}
+
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(len(functions)),
 	)
 
 	s := table.DefaultStyles()

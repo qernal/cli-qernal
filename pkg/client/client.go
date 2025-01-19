@@ -25,8 +25,8 @@ type QernalAPIClient struct {
 // New creates a QernalAPIClient with the specified context, optional Hydra and Chaos host URLs, and authentication token.
 func New(ctx context.Context, hostHydra, hostChaos *string, token string) (client QernalAPIClient, err error) {
 
-	defaultHostHydra := GetEnv("QERNAL_HOST_HYDRA", "https://hydra.qernal.com")
-	defaultHostChaos := GetEnv("QERNAL_HOST_CHAOS", "https://chaos.qernal.com")
+	defaultHostHydra := GetEnv("QERNAL_HOST_HYDRA", "https://hydra.qernal.dev")
+	defaultHostChaos := GetEnv("QERNAL_HOST_CHAOS", "https://chaos.qernal.dev")
 
 	hydra := defaultHostHydra
 	chaos := defaultHostChaos
@@ -78,6 +78,21 @@ func (qc *QernalAPIClient) FetchDek(ctx context.Context, projectID string) (*ope
 		return nil, fmt.Errorf("failed to fetch DEK key: unexpected error: %w, detail: %v", err, resData)
 	}
 	return keyRes, nil
+}
+func (qc *QernalAPIClient) GetProjectByName(name string) (openapiclient.ProjectResponse, error) {
+	ctx := context.Background()
+	projectResp, httpRes, err := qc.ProjectsAPI.ProjectsList(ctx).FName(name).Execute()
+	if err != nil {
+		resData, httperr := ParseResponseData(httpRes)
+		if httperr != nil {
+			return openapiclient.ProjectResponse{}, fmt.Errorf("failed to fetch project by name: unexpected HTTP error: %w", httperr)
+		}
+		return openapiclient.ProjectResponse{}, fmt.Errorf("failed to fetch project by  name: unexpected error: %w, detail: %v", err, resData)
+	}
+	if len(projectResp.Data) <= 0 {
+		return openapiclient.ProjectResponse{}, fmt.Errorf("unable to find project with name %s", name)
+	}
+	return projectResp.Data[0], nil
 }
 
 func ParseResponseData(res *http.Response) (resData interface{}, err error) {
