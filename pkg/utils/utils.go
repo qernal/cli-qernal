@@ -77,17 +77,11 @@ func (p *Printer) SetOut(out io.Writer) {
 
 // FormatOutput formats data based on the output type
 func (p *Printer) FormatOutput(data interface{}, outputType string) string {
-	var out io.Writer = os.Stdout
-	if p.resourceOut != nil {
-		out = p.resourceOut
-	}
-
 	switch outputType {
 	case "json":
 		prettyJSON, err := PrettyPrintJSON(data)
 		if err != nil {
-			fmt.Fprintln(out, "invalid json data")
-			os.Exit(1)
+			return "invalid json data"
 		}
 		return prettyJSON
 	default:
@@ -96,11 +90,9 @@ func (p *Printer) FormatOutput(data interface{}, outputType string) string {
 			for key, value := range mapData {
 				fmt.Fprintf(formattedMap, "%s: %v\n", key, value)
 			}
-			fmt.Fprint(out, formattedMap.String())
 			return formattedMap.String()
 		}
-		formattedString := fmt.Sprintf("%v", data)
-		return formattedString
+		return fmt.Sprintf("%v", data)
 	}
 }
 
