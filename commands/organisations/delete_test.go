@@ -12,12 +12,12 @@ import (
 
 func TestDeleteCmd(t *testing.T) {
 
-	orgId, _, err := helpers.CreateOrg()
+	orgId, name, err := helpers.CreateOrg()
 	if err != nil {
 		t.Fatalf("failed to create org: %v", err)
 	}
 
-	args := []string{"--id", orgId}
+	args := []string{"--name", name}
 
 	printer := utils.NewPrinter()
 	//set stdout to a buffer we control
