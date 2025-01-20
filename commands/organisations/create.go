@@ -2,6 +2,7 @@ package org
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/qernal/cli-qernal/charm"
@@ -31,24 +32,27 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("", err)
 			}
 
+			orgName, _ := cmd.Flags().GetString("name")
+
 			org, httpRes, err := qc.OrganisationsAPI.OrganisationsCreate(ctx).OrganisationBody(openapi_chaos_client.OrganisationBody{
 				Name: orgName,
 			}).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
-				printer.Logger.Debug("unable to list projects, request failed", slog.String("error", err.Error()), slog.String("response", resData.(string)))
+				if data, ok := resData.(map[string]interface{}); ok {
+					if innerData, ok := data["data"].(map[string]interface{}); ok {
+						return charm.RenderError("unable to create project: ", errors.New(innerData["name"].(string)))
+					}
+				}
+				printer.Logger.Debug("unable to list projects, request failed",
+					slog.String("error", err.Error()),
+					slog.Any("response", resData))
 				return charm.RenderError("unable to create project", err)
-
 			}
-
 			var data interface{}
 
 			if common.OutputFormat == "json" {
-				data = map[string]interface{}{
-					"organisation_name": org.Name,
-					"organisation_id":   org.Id,
-					"user_id":           org.UserId,
-				}
+				data = org
 			} else {
 				data = map[string]interface{}{
 					"Created organisation with ID": org.Id,
