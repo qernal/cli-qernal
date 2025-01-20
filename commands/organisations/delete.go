@@ -2,6 +2,7 @@ package org
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/qernal/cli-qernal/charm"
@@ -33,19 +34,32 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			_, httpRes, err := qc.OrganisationsAPI.OrganisationsDelete(ctx, orgID).Execute()
+			orgName, _ := cmd.Flags().GetString("name")
 
+			org, err := qc.GetOrgByName(orgName)
 			if err != nil {
-				resData, _ := client.ParseResponseData(httpRes)
-				printer.Logger.Debug("unable to delete org, request failed", slog.String("error", err.Error()), slog.String("response", resData.(string)))
-				charm.RenderError("unable to delete organisation,request failed with:", err)
+				return charm.RenderError("x", err)
 			}
 
-			printer.PrintResource(charm.RenderWarning("sucessfully deleted project with ID: " + orgID))
+			_, httpRes, err := qc.OrganisationsAPI.OrganisationsDelete(ctx, org.Id).Execute()
+			if err != nil {
+				resData, _ := client.ParseResponseData(httpRes)
+				if data, ok := resData.(map[string]interface{}); ok {
+					if innerData, ok := data["data"].(map[string]interface{}); ok {
+						return charm.RenderError("unable to delete organisation: ", errors.New(innerData["name"].(string)))
+					}
+				}
+				printer.Logger.Debug("unable to delete org, request failed",
+					slog.String("error", err.Error()),
+					slog.Any("response", resData))
+				return charm.RenderError("unable to delete organisation", err)
+			}
+			printer.PrintResource(charm.RenderWarning("sucessfully deleted project with name: " + org.Name))
 			return nil
 
 		},
 	}
-	cmd.Flags().StringVar(&orgID, "id", "", "ID of the organisation")
+	cmd.Flags().StringVar(&orgName, "name", "", "name of the organisation")
+	cmd.MarkFlagRequired("name")
 	return cmd
 }
