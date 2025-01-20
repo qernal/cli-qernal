@@ -132,6 +132,22 @@ func EncryptLocalSecret(pk, secret string) (string, error) {
 	return base64.StdEncoding.EncodeToString(encrypted), nil
 }
 
+func (qc *QernalAPIClient) GetOrgByName(name string) (openapiclient.OrganisationResponse, error) {
+	ctx := context.Background()
+	orgResp, httpRes, err := qc.OrganisationsAPI.OrganisationsList(ctx).FName(name).Execute()
+	if err != nil {
+		resData, httperr := ParseResponseData(httpRes)
+		if httperr != nil {
+			return openapiclient.OrganisationResponse{}, fmt.Errorf("failed to fetch project by name: unexpected HTTP error: %w", httperr)
+		}
+		return openapiclient.OrganisationResponse{}, fmt.Errorf("failed to fetch project by  name: unexpected error: %w, detail: %v", err, resData)
+	}
+	if len(orgResp.Data) <= 0 {
+		return openapiclient.OrganisationResponse{}, fmt.Errorf("unable to find project with name %s", name)
+	}
+	return orgResp.Data[0], nil
+}
+
 func GetEnv(key, defaultValue string) string {
 	err := godotenv.Load()
 	if err != nil {
