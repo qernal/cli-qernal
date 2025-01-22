@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/qernal/cli-qernal/charm"
+	"github.com/qernal/cli-qernal/pkg/common"
 )
 
 func PrettyPrintJSON(data interface{}) (string, error) {
@@ -21,8 +23,19 @@ func PrettyPrintJSON(data interface{}) (string, error) {
 }
 
 func FormatOutput(data interface{}, outputType string) string {
+	// Handle error type
+	if err, ok := data.(error); ok {
+		errMap := map[string]string{"error": err.Error()}
+		if outputType == "json" {
+			jsonStr, _ := json.MarshalIndent(errMap, "", "  ")
+			return string(jsonStr)
+		}
+		return charm.PlainTextStyle.Render(fmt.Sprintf("error: %v", err))
+	}
+
 	switch outputType {
 	case "json":
+
 		prettyJSON, err := PrettyPrintJSON(data)
 		if err != nil {
 			charm.RenderError("invalid json data")
@@ -77,6 +90,14 @@ func (p *Printer) SetOut(out io.Writer) {
 
 // FormatOutput formats data based on the output type
 func (p *Printer) FormatOutput(data interface{}, outputType string) string {
+
+	// Handle error type
+	if err, ok := data.(error); ok {
+		if outputType == "json" {
+			return fmt.Sprintf(`{"error": "%s"}`, err.Error())
+		}
+	}
+
 	switch outputType {
 	case "json":
 		prettyJSON, err := PrettyPrintJSON(data)
@@ -94,6 +115,25 @@ func (p *Printer) FormatOutput(data interface{}, outputType string) string {
 		}
 		return fmt.Sprintf("%v", data)
 	}
+}
+
+// RenderError handles API error responses, formatting them as JSON when json output is enabled.
+// For general error rendering with colored output, use `charm.RenderError` instead.
+// Example:
+//
+//	if err != nil {
+//	    return printer.RenderError("failed to create resource", err) // Will output {"error": "reason"} for json
+//	}
+func (p *Printer) RenderError(message string, err ...error) error {
+	if len(err) > 0 && err[0] != nil {
+		if common.OutputFormat == "json" {
+			p.PrintResource(p.FormatOutput(err[0], common.OutputFormat))
+			os.Exit(1)
+			return nil // Empty error to avoid duplicate output
+		}
+		return fmt.Errorf("%s", charm.ErrorStyle.Render(message, ",", err[0].Error()))
+	}
+	return errors.New(charm.ErrorStyle.Render(message))
 }
 
 // PrintResource directly prints the given data to the output.

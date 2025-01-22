@@ -18,7 +18,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create",
 		Aliases: []string{"new"},
-		Example: "qernal organisation create --name <project_name>",
+		Example: "qernal organisation create --name <organisation_name>",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			ctx := context.Background()
@@ -41,13 +41,16 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {
 					if innerData, ok := data["data"].(map[string]interface{}); ok {
-						return charm.RenderError("unable to create project: ", errors.New(innerData["name"].(string)))
+						if nameErr, ok := innerData["name"].(string); ok {
+							return printer.RenderError("unable to create organisation", errors.New(nameErr))
+						}
 					}
 				}
-				printer.Logger.Debug("unable to list projects, request failed",
+				printer.Logger.Debug("unable to list organisations, request failed",
 					slog.String("error", err.Error()),
 					slog.Any("response", resData))
-				return charm.RenderError("unable to create project", err)
+
+				return printer.RenderError("unable to create organisation", err)
 			}
 			var data interface{}
 

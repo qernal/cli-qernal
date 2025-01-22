@@ -16,8 +16,9 @@ import (
 var version bool
 
 var RootCmd = &cobra.Command{
-	Use:   "qernal",
-	Short: fmt.Sprintf("CLI for interacting with Qernal\nVersion: %s", build.Version),
+	Use:          "qernal",
+	Short:        fmt.Sprintf("CLI for interacting with Qernal\nVersion: %s", build.Version),
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if version {
 			versionCmd.Run(cmd, args)
