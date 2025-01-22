@@ -30,4 +30,6 @@ func init() {
 	OrgCmd.AddCommand(NewCreateCmd(printer))
 	OrgCmd.AddCommand(NewDeleteCmd(printer))
 	OrgCmd.AddCommand(NewUpdateCmd(printer))
+	OrgCmd.AddCommand(NewGetCmd(printer))
+
 }

@@ -2,7 +2,7 @@ package org
 
 import (
 	"context"
-	"log/slog"
+	"errors"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
@@ -17,7 +17,7 @@ func NewOrgListCmd(printer *utils.Printer) *cobra.Command {
 		Use:     "list",
 		Aliases: []string{"ls", "l"},
 		Short:   "list your qernal organisations",
-		Example: "qernal projects ls",
+		Example: "qernal organisations ls",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			token, err := auth.GetQernalToken()
 			if err != nil {
@@ -31,8 +31,13 @@ func NewOrgListCmd(printer *utils.Printer) *cobra.Command {
 			orgResp, httpRes, err := qc.OrganisationsAPI.OrganisationsList(ctx).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
-				printer.Logger.Debug("unable to list projects, request failed", slog.String("error", err.Error()), slog.String("response", resData.(string)))
-				charm.RenderError("unable to list projects,  request failed with:", err)
+				if data, ok := resData.(map[string]interface{}); ok {
+					if innerData, ok := data["data"].(map[string]interface{}); ok {
+						if nameErr, ok := innerData["name"].(string); ok {
+							return printer.RenderError("unable to create organisation", errors.New(nameErr))
+						}
+					}
+				}
 			}
 
 			if common.OutputFormat == "json" {
