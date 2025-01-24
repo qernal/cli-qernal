@@ -274,7 +274,6 @@ func PaginateProjects(printer *utils.Printer, ctx context.Context, qc *client.Qe
 			slog.Any("response", resData))
 		return nil, printer.RenderError("unable to list projects", err)
 	}
-
 	allProjects := initialResp.GetData()
 	if initialResp.Meta.Results <= 20 {
 		return allProjects, nil
