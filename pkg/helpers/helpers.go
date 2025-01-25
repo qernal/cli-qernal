@@ -48,7 +48,7 @@ func CreateOrg() (string, string, error) {
 func DeleteOrg(orgid string) {
 	token, err := auth.GetQernalToken()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("obtaining token failed with:", err).Error())
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("obtaining token failed with:", err).Error())
 	}
 
 	ctx := context.Background()
@@ -58,7 +58,8 @@ func DeleteOrg(orgid string) {
 	}
 	_, r, err := client.OrganisationsAPI.OrganisationsDelete(context.Background(), orgid).Execute()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error when calling `OrganisationsAPI.OrganisationsDelete``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("unable to create qernal client", err).Error())
+		fmt.Fprintf(os.Stderr, "Error when calling `OrganisationsAPI.OrganisationsDelete`: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
 }
@@ -90,7 +91,7 @@ func CreateProj(orgid string) (string, string, error) {
 func DeleteProj(projid string) {
 	token, err := auth.GetQernalToken()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("obtaining token failed with:", err).Error())
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("obtaining token failed with:", err).Error())
 	}
 
 	ctx := context.Background()
