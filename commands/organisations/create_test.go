@@ -36,7 +36,7 @@ func TestCreateOrg(t *testing.T) {
 
 	err := cmd.Execute()
 	if err != nil {
-		t.Fatal("unable to execute command %v", err)
+		t.Fatalf("unable to execute command: %v", err)
 	}
 	// check if json is as expected
 	err = json.Unmarshal(buf.Bytes(), &expectedJson)
