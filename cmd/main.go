@@ -1,10 +1,13 @@
 package main
 
 import (
+	"os"
+
 	"github.com/qernal/cli-qernal/commands"
 )
 
 func main() {
-	commands.RootCmd.Execute()
-
+	if err := commands.RootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
