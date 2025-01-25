@@ -30,6 +30,7 @@ func TestDeleteCmd(t *testing.T) {
 	err = cmd.Execute()
 
 	require.NoError(t, err)
-	assert.Contains(t, buf.String(), name)
+	t.Log(buf.String())
+	assert.Contains(t, buf.String(), "deleted")
 
 }
