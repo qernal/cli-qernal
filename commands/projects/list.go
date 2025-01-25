@@ -13,10 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	pageSize int32
-)
-
 func NewProjectsListCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
