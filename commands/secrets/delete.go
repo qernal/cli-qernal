@@ -27,7 +27,7 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 			}
 			_, _, err = qc.SecretsAPI.ProjectsSecretsDelete(ctx, projectID, secretName).Execute()
 			if err != nil {
-				charm.RenderError("unable to delete secret,  request failed with:", err)
+				return charm.RenderError("unable to delete secret,  request failed with:", err)
 			}
 
 			printer.PrintResource(charm.RenderWarning("sucessfully deleted project with name: " + secretName))

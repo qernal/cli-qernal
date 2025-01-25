@@ -49,7 +49,6 @@ func TestProjectCreate(t *testing.T) {
 			expectErr:      false,
 		},
 	}
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			cmd := NewCreateCmd(printer)
@@ -60,8 +59,8 @@ func TestProjectCreate(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				assert.Contains(t, buf.String(), tc.expectedOutput)
-				json.Unmarshal(buf.Bytes(), &expectedJson)
-
+				err := json.Unmarshal(buf.Bytes(), &expectedJson)
+				require.NoError(t, err, "Failed to unmarshal JSON response")
 			}
 		})
 	}

@@ -32,11 +32,11 @@ func init() {
 	SecretsCmd.PersistentFlags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	SecretsCmd.PersistentFlags().StringVarP(&secretName, "name", "n", "", "name of the secret")
 
-	NewCreateCmd(printer).MarkFlagRequired("name")
-	NewCreateCmd(printer).MarkFlagRequired("project")
-	NewCreateCmd(printer).MarkFlagRequired("public-key")
-	NewCreateCmd(printer).MarkFlagRequired("private-key")
+	_ = NewCreateCmd(printer).MarkFlagRequired("name")
+	_ = NewCreateCmd(printer).MarkFlagRequired("project")
+	_ = NewCreateCmd(printer).MarkFlagRequired("public-key")
+	_ = NewCreateCmd(printer).MarkFlagRequired("private-key")
 
-	NewDeleteCmd(printer).MarkFlagRequired("name")
-	NewDeleteCmd(printer).MarkFlagRequired("project")
+	_ = NewDeleteCmd(printer).MarkFlagRequired("name")
+	_ = NewDeleteCmd(printer).MarkFlagRequired("project")
 }

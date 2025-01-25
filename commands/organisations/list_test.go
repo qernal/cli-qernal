@@ -28,8 +28,8 @@ func TestListOrg(t *testing.T) {
 	cmd := NewOrgListCmd(printer)
 	cmd.SetArgs([]string{"-o", "json"})
 
-	err := cmd.Execute()
-	err = json.Unmarshal(buf.Bytes(), &expectedJson)
+	cmd.Execute()
+	err := json.Unmarshal(buf.Bytes(), &expectedJson)
 	if err != nil {
 		t.Fatalf("json result is not in expected format %v", err)
 

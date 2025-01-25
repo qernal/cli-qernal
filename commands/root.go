@@ -25,7 +25,9 @@ var RootCmd = &cobra.Command{
 		if version {
 			versionCmd.Run(cmd, args)
 		} else {
-			cmd.Help()
+			if err := cmd.Help(); err != nil {
+				return fmt.Errorf("failed to display help: %w", err)
+			}
 		}
 		return nil
 	},
