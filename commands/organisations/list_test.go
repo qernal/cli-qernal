@@ -30,7 +30,7 @@ func TestListOrg(t *testing.T) {
 
 	err := cmd.Execute()
 	if err != nil {
-		t.Fatal("unable to execute command %v", err)
+		t.Fatalf("unable to execute command %v", err)
 	}
 	err = json.Unmarshal(buf.Bytes(), &expectedJson)
 	if err != nil {
