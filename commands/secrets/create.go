@@ -167,8 +167,8 @@ The secret value is read from stdin, allowing for secure input methods.`,
 		},
 	}
 
-	cmd.MarkFlagRequired("name")
-	cmd.MarkFlagRequired("project")
+	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("project")
 	cmd.Flags().StringVarP(&secretType, "type", "t", "", "type of secret to be created (registry, environment, certificate")
 	cmd.Flags().StringVarP(&registry, "registry-url", "r", "", "Url to private container repository (for docker registry use docker.io)")
 
