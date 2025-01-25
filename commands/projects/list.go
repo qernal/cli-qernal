@@ -35,6 +35,7 @@ var ProjectsListCmd = &cobra.Command{
 			}
 			return err
 		}
+
 		if common.OutputFormat == "json" {
 			fmt.Println(utils.FormatOutput(projectsResp.Data, common.OutputFormat))
 			return nil
