@@ -49,6 +49,6 @@ func NewSecretsListCmd(printer *utils.Printer) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.MarkFlagRequired("project")
+	_ = cmd.MarkFlagRequired("project")
 	return cmd
 }
