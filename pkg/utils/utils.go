@@ -38,8 +38,9 @@ func FormatOutput(data interface{}, outputType string) string {
 
 		prettyJSON, err := PrettyPrintJSON(data)
 		if err != nil {
-			charm.RenderError("invalid json data")
-			os.Exit(1)
+			if err := charm.RenderError("invalid json data"); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to render error: %v\n", err)
+			}
 		}
 		return prettyJSON
 	default:

@@ -9,11 +9,11 @@ import (
 )
 
 type Input struct {
-	text         string
-	placeholder  string
-	initialValue string
-	hidden       bool
-	required     bool
+	_text         string
+	_placeholder  string
+	_initialValue string
+	_hidden       bool
+	_required     bool
 }
 
 var (
