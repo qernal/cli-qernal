@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/qernal/cli-qernal/charm"
@@ -134,12 +134,11 @@ The secret value is read from stdin, allowing for secure input methods.`,
 					return charm.RenderError("Both --public-key and --private-key flags must be provided", nil)
 				}
 
-				publicKeyContent, err := ioutil.ReadFile(publicKey)
+				publicKeyContent, err := os.ReadFile(publicKey)
 				if err != nil {
 					return charm.RenderError("Unable to read public key file", err)
 				}
-
-				privateKeyContent, err := ioutil.ReadFile(privateKey)
+				privateKeyContent, err := os.ReadFile(privateKey)
 				if err != nil {
 					return charm.RenderError("Unable to read private key file", err)
 				}
