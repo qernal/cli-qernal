@@ -34,10 +34,12 @@ func TestCreateOrg(t *testing.T) {
 	args := []string{"-o", "json", "--name", orgName}
 	cmd.SetArgs(args)
 
-	cmd.Execute()
-
+	err := cmd.Execute()
+	if err != nil {
+		t.Fatal("unable to execute command %v", err)
+	}
 	// check if json is as expected
-	err := json.Unmarshal(buf.Bytes(), &expectedJson)
+	err = json.Unmarshal(buf.Bytes(), &expectedJson)
 	if err != nil {
 		t.Fatalf("json result is not in expected format %v", err)
 	}

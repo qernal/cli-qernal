@@ -82,7 +82,8 @@ func TestSceretCreate(t *testing.T) {
 	}
 	t.Cleanup(func() {
 		helpers.DeleteOrg(orgID)
-		helpers.DeleteProj(projectID)
+		//delete org should terminate projects
+		// helpers.DeleteProj(projectID)
 	})
 }
 
