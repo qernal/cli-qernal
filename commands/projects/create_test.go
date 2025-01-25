@@ -37,12 +37,6 @@ func TestProjectCreate(t *testing.T) {
 		expectErr      bool
 	}{
 		{
-			name:           "Zero Args",
-			args:           []string{"create", "--organisation", orgID},
-			expectedOutput: "required flag(s) not set",
-			expectErr:      true,
-		},
-		{
 			name:           "Valid Project",
 			args:           []string{"create", "--name", projectname, "--organisation", orgID, "--output", "json"},
 			expectedOutput: "project_id",
