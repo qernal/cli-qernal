@@ -69,6 +69,5 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 	cmd.Flags().StringVarP(&orgName, "name", "n", "", "name of the organisation")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 	_ = cmd.MarkFlagRequired("name")
-
 	return cmd
 }

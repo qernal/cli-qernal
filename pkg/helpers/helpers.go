@@ -54,7 +54,7 @@ func DeleteOrg(orgid string) {
 	ctx := context.Background()
 	client, err := client.New(ctx, nil, nil, token)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("unable to create qernal client", err).Error())
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("unable to create qernal client", err).Error())
 	}
 	_, r, err := client.OrganisationsAPI.OrganisationsDelete(context.Background(), orgid).Execute()
 	if err != nil {
@@ -97,7 +97,7 @@ func DeleteProj(projid string) {
 	ctx := context.Background()
 	client, err := client.New(ctx, nil, nil, token)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("unable to create qernal client", err).Error())
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("unable to create qernal client", err).Error())
 	}
 
 	_, r, err := client.ProjectsAPI.ProjectsDelete(context.Background(), projid).Execute()
