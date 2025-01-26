@@ -81,6 +81,6 @@ func NewEncryptCmd(printer *utils.Printer) *cobra.Command {
 	}
 	cmd.Flags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-	cmd.MarkFlagRequired("project")
+	_ = cmd.MarkFlagRequired("project")
 	return cmd
 }

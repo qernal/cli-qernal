@@ -29,7 +29,7 @@ var SecretsListCmd = &cobra.Command{
 		}
 		secretsResp, _, err := qc.SecretsAPI.ProjectsSecretsList(ctx, projectID).Execute()
 		if err != nil {
-			charm.RenderError("unable to list secrets,  request failed with:", err)
+			return charm.RenderError("unable to list secrets,  request failed with:", err)
 		}
 
 		if secretsResp == nil {
@@ -48,5 +48,5 @@ var SecretsListCmd = &cobra.Command{
 }
 
 func init() {
-	SecretsListCmd.MarkFlagRequired("project")
+	_ = SecretsListCmd.MarkFlagRequired("project")
 }

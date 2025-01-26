@@ -27,7 +27,7 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 			}
 			_, _, err = qc.SecretsAPI.ProjectsSecretsDelete(ctx, projectID, secretName).Execute()
 			if err != nil {
-				charm.RenderError("unable to delete secret,  request failed with:", err)
+				return charm.RenderError("unable to delete secret,  request failed with:", err)
 			}
 
 			printer.PrintResource(charm.RenderWarning("sucessfully deleted project with name: " + secretName))
@@ -37,7 +37,7 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 	}
 	cmd.Flags().StringVarP(&secretName, "name", "n", "", "name of the secret")
 	cmd.Flags().StringVarP(&projectID, "project", "p", "", "ID of the project")
-	cmd.MarkFlagRequired("project")
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("project")
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }

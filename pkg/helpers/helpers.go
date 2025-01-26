@@ -48,17 +48,18 @@ func CreateOrg() (string, string, error) {
 func DeleteOrg(orgid string) {
 	token, err := auth.GetQernalToken()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("obtaining token failed with:", err).Error())
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("obtaining token failed with:", err).Error())
 	}
 
 	ctx := context.Background()
 	client, err := client.New(ctx, nil, nil, token)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("unable to create qernal client", err).Error())
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("unable to create qernal client", err).Error())
 	}
 	_, r, err := client.OrganisationsAPI.OrganisationsDelete(context.Background(), orgid).Execute()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error when calling `OrganisationsAPI.OrganisationsDelete``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("unable to create qernal client", err).Error())
+		fmt.Fprintf(os.Stderr, "Error when calling `OrganisationsAPI.OrganisationsDelete`: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
 }
@@ -90,13 +91,13 @@ func CreateProj(orgid string) (string, string, error) {
 func DeleteProj(projid string) {
 	token, err := auth.GetQernalToken()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("obtaining token failed with:", err).Error())
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("obtaining token failed with:", err).Error())
 	}
 
 	ctx := context.Background()
 	client, err := client.New(ctx, nil, nil, token)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, charm.RenderError("unable to create qernal client", err).Error())
+		fmt.Fprintf(os.Stderr, "%s\n", charm.RenderError("unable to create qernal client", err).Error())
 	}
 
 	_, r, err := client.ProjectsAPI.ProjectsDelete(context.Background(), projid).Execute()
@@ -105,8 +106,6 @@ func DeleteProj(projid string) {
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
 }
-
-// CreateTempSecret creates an environment secret in the specified project
 
 func GenerateSelfSignedCert() ([]byte, []byte, error) {
 	// Generate a new ECDSA private key

@@ -43,7 +43,7 @@ func Load() {
 
 	err = viper.ReadInConfig()
 	if err != nil {
-		fmt.Print(fmt.Errorf("unable to read qernal config", err).Error())
+		fmt.Print(fmt.Errorf("unable to read qernal config: %w", err).Error())
 	}
 
 	token = viper.Get("token").(string)

@@ -6,6 +6,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	verbose = false
+)
 var AuthCmd = &cobra.Command{
 	Use:   "auth",
 	Short: "Manage your auth tokens",
@@ -21,5 +24,5 @@ var AuthCmd = &cobra.Command{
 func init() {
 	AuthCmd.AddCommand(checkCmd)
 	AuthCmd.AddCommand(loginCmd)
-
+	AuthCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "verbose output ")
 }
