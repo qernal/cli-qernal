@@ -55,7 +55,7 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 	cmd.Flags().StringVarP(&name, "name", "n", "", "name of the project to be updated")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 	cmd.Flags().StringVarP(&orgID, "organisation", "", "", "organisation of the project to be updated")
-	cmd.MarkFlagRequired("project")
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("project")
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }

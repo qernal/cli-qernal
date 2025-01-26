@@ -8,14 +8,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Input struct {
-	text         string
-	placeholder  string
-	initialValue string
-	hidden       bool
-	required     bool
-}
-
 var (
 	SuccessStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#00FF00"))

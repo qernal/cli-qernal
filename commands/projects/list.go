@@ -30,7 +30,10 @@ var ProjectsListCmd = &cobra.Command{
 		}
 		projectsResp, _, err := qc.ProjectsAPI.ProjectsList(ctx).Execute()
 		if err != nil {
-			charm.RenderError("unable to list projects,  request failed with:", err)
+			if err := charm.RenderError("unable to list projects, request failed with:", err); err != nil {
+				return fmt.Errorf("failed to render error: %w", err)
+			}
+			return err
 		}
 
 		if common.OutputFormat == "json" {

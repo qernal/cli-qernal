@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/qernal/cli-qernal/commands/auth"
+	org "github.com/qernal/cli-qernal/commands/organisations"
 	"github.com/qernal/cli-qernal/commands/projects"
 	"github.com/qernal/cli-qernal/commands/secrets"
 	"github.com/qernal/cli-qernal/pkg/build"
@@ -15,13 +16,16 @@ import (
 var version bool
 
 var RootCmd = &cobra.Command{
-	Use:   "qernal",
-	Short: fmt.Sprintf("CLI for interacting with Qernal\nVersion: %s", build.Version),
+	Use:          "qernal",
+	Short:        fmt.Sprintf("CLI for interacting with Qernal\nVersion: %s", build.Version),
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if version {
 			versionCmd.Run(cmd, args)
 		} else {
-			cmd.Help()
+			if err := cmd.Help(); err != nil {
+				return fmt.Errorf("failed to display help: %w", err)
+			}
 		}
 		return nil
 	},
@@ -40,5 +44,6 @@ func init() {
 	RootCmd.AddCommand(auth.AuthCmd)
 	RootCmd.AddCommand(secrets.SecretsCmd)
 	RootCmd.AddCommand(projects.ProjectsCmd)
+	RootCmd.AddCommand(org.OrgCmd)
 
 }

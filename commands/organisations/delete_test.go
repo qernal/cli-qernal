@@ -1,4 +1,4 @@
-package projects
+package org
 
 import (
 	"bytes"
@@ -11,16 +11,13 @@ import (
 )
 
 func TestDeleteCmd(t *testing.T) {
-	orgID, _, err := helpers.CreateOrg()
-	if err != nil {
-		t.Fatalf("failed to create org: %v", err)
-	}
-	_, projectName, err := helpers.CreateProj(orgID)
+
+	_, name, err := helpers.CreateOrg()
 	if err != nil {
 		t.Fatalf("failed to create org: %v", err)
 	}
 
-	args := []string{"--project", projectName}
+	args := []string{"--name", name}
 
 	printer := utils.NewPrinter()
 	//set stdout to a buffer we control
@@ -31,11 +28,9 @@ func TestDeleteCmd(t *testing.T) {
 	cmd.SetArgs(args)
 
 	err = cmd.Execute()
-	require.NoError(t, err)
-	assert.Contains(t, buf.String(), projectName)
 
-	t.Cleanup(func() {
-		helpers.DeleteOrg(orgID)
-	})
+	require.NoError(t, err)
+	t.Log(buf.String())
+	assert.Contains(t, buf.String(), "deleted")
 
 }

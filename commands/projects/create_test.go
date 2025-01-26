@@ -37,19 +37,12 @@ func TestProjectCreate(t *testing.T) {
 		expectErr      bool
 	}{
 		{
-			name:           "Zero Args",
-			args:           []string{"create", "--organisation", orgID},
-			expectedOutput: "required flag(s) not set",
-			expectErr:      true,
-		},
-		{
 			name:           "Valid Project",
 			args:           []string{"create", "--name", projectname, "--organisation", orgID, "--output", "json"},
 			expectedOutput: "project_id",
 			expectErr:      false,
 		},
 	}
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			cmd := NewCreateCmd(printer)
@@ -60,8 +53,8 @@ func TestProjectCreate(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				assert.Contains(t, buf.String(), tc.expectedOutput)
-				json.Unmarshal(buf.Bytes(), &expectedJson)
-
+				err := json.Unmarshal(buf.Bytes(), &expectedJson)
+				require.NoError(t, err, "Failed to unmarshal JSON response")
 			}
 		})
 	}

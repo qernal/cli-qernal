@@ -32,11 +32,11 @@ var (
 2. **$HOME/.qernal/config.yaml file:** If the environment variable is not found, the CLI checks for the token in this file.
 3. **User input:** If neither of the above is found, the user is prompted to enter their Qernal token.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+
 			token, err := GetQernalToken()
 			if err != nil {
 				return err
 			}
-
 			// allow user to overwrite existing token
 			if len(token) > 0 {
 				fmt.Println(charm.WarningStyle.Render("Found an auth token, entering a new one will cause an overwrite"))
@@ -61,10 +61,11 @@ var (
 )
 
 func GetQernalToken() (string, error) {
-
 	// 1. Check environment variable
 	if token := os.Getenv("QERNAL_TOKEN"); token != "" {
-		fmt.Println(charm.SuccessStyle.Render("configuring CLI using environment variable ✅"))
+		if verbose {
+			fmt.Println(charm.SuccessStyle.Render("configuring CLI using environment variable ✅"))
+		}
 		return token, nil
 	}
 
