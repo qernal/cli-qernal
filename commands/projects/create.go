@@ -65,7 +65,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 	cmd.Flags().StringVarP(&orgID, "organisation", "", "", "Organisation the project should be created under")
 	cmd.Flags().StringVarP(&projectName, "name", "n", "", "Name of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-	cmd.MarkFlagRequired("organisation")
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("organisation")
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }

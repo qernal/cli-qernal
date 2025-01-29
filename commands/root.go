@@ -17,13 +17,16 @@ import (
 var version bool
 
 var RootCmd = &cobra.Command{
-	Use:   "qernal",
-	Short: fmt.Sprintf("CLI for interacting with Qernal\nVersion: %s", build.Version),
+	Use:          "qernal",
+	Short:        fmt.Sprintf("CLI for interacting with Qernal\nVersion: %s", build.Version),
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if version {
 			versionCmd.Run(cmd, args)
 		} else {
-			cmd.Help()
+			if err := cmd.Help(); err != nil {
+				return fmt.Errorf("failed to display help: %w", err)
+			}
 		}
 		return nil
 	},

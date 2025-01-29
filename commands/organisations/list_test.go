@@ -29,6 +29,9 @@ func TestListOrg(t *testing.T) {
 	cmd.SetArgs([]string{"-o", "json"})
 
 	err := cmd.Execute()
+	if err != nil {
+		t.Fatalf("unable to execute command %v", err)
+	}
 	err = json.Unmarshal(buf.Bytes(), &expectedJson)
 	if err != nil {
 		t.Fatalf("json result is not in expected format %v", err)

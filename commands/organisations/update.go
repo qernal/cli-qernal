@@ -2,8 +2,7 @@ package org
 
 import (
 	"context"
-	"fmt"
-	"log/slog"
+	"errors"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
@@ -31,7 +30,7 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 
 			qc, err := client.New(ctx, nil, nil, token)
 			if err != nil {
-				return charm.RenderError("error creating qernal client", err)
+				return printer.RenderError("error creating qernal client", err)
 			}
 
 			patchResp, httpRes, err := qc.OrganisationsAPI.OrganisationsUpdate(ctx, orgID).OrganisationBody(openapi_chaos_client.OrganisationBody{
@@ -39,10 +38,24 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 			}).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
-				printer.Logger.Debug("unable to delete org, request failed", slog.String("error", err.Error()), slog.String("response", resData.(string)))
-				return charm.RenderError(fmt.Sprintf("unable to update org, patch failed with: %s", err))
+				if data, ok := resData.(map[string]interface{}); ok {
+					if innerData, ok := data["data"].(map[string]interface{}); ok {
+						if nameErr, ok := innerData["name"].(string); ok {
+							return printer.RenderError("unable to create organisation", errors.New(nameErr))
+						}
+					}
+				}
 			}
-			printer.PrintResource(charm.RenderWarning("sucessfully updated organisation name to: " + patchResp.Name))
+
+			var data interface{}
+			if common.OutputFormat == "json" {
+				data = patchResp
+			} else {
+				data = map[string]interface{}{
+					"sucessfully updated organisation name to:": patchResp.Name,
+				}
+			}
+			printer.PrintResource(charm.RenderWarning(utils.FormatOutput(data, common.OutputFormat)))
 			return nil
 
 		},
@@ -51,8 +64,8 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 	cmd.Flags().StringVar(&orgID, "id", "", "Organisation ID")
 	cmd.Flags().StringVarP(&orgName, "name", "n", "", "name of the organisation to be updated")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-	cmd.MarkFlagRequired("id")
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("id")
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 
 }

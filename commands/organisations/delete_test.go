@@ -12,12 +12,12 @@ import (
 
 func TestDeleteCmd(t *testing.T) {
 
-	orgId, _, err := helpers.CreateOrg()
+	_, name, err := helpers.CreateOrg()
 	if err != nil {
 		t.Fatalf("failed to create org: %v", err)
 	}
 
-	args := []string{"--id", orgId}
+	args := []string{"--name", name}
 
 	printer := utils.NewPrinter()
 	//set stdout to a buffer we control
@@ -28,7 +28,9 @@ func TestDeleteCmd(t *testing.T) {
 	cmd.SetArgs(args)
 
 	err = cmd.Execute()
+
 	require.NoError(t, err)
-	assert.Contains(t, buf.String(), orgId)
+	t.Log(buf.String())
+	assert.Contains(t, buf.String(), "deleted")
 
 }

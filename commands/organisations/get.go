@@ -2,8 +2,6 @@ package org
 
 import (
 	"context"
-	"errors"
-	"log/slog"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
@@ -13,11 +11,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
+func NewGetCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "delete",
-		Aliases: []string{"rm"},
-		Example: "qernal organisation delete --name <org name>",
+		Use:     "get",
+		Aliases: []string{"get"},
+		Example: "qernal organisation get --name <org name>",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")
@@ -39,32 +37,27 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 
 			org, err := qc.GetOrgByName(orgName)
 			if err != nil {
-				return charm.RenderError("x", err)
-			}
-
-			DeleteResp, httpRes, err := qc.OrganisationsAPI.OrganisationsDelete(ctx, org.Id).Execute()
-			if err != nil {
-				resData, _ := client.ParseResponseData(httpRes)
-				if data, ok := resData.(map[string]interface{}); ok {
-					if innerData, ok := data["data"].(map[string]interface{}); ok {
-						return charm.RenderError("unable to delete organisation: ", errors.New(innerData["name"].(string)))
-					}
-				}
-				printer.Logger.Debug("unable to delete org, request failed",
-					slog.String("error", err.Error()),
-					slog.Any("response", resData))
-				return charm.RenderError("unable to delete organisation", err)
+				return printer.RenderError("x", err)
 			}
 
 			var data interface{}
 			if common.OutputFormat == "json" {
-				data = DeleteResp
+				data = org
 			} else {
 				data = map[string]interface{}{
-					"sucessfully deleted organisation with name:": org.Name,
+					"Name":    org.Name,
+					"User ID": org.UserId,
+					"Org ID":  org.Id,
 				}
 			}
-			printer.PrintResource(charm.RenderWarning(utils.FormatOutput(data, common.OutputFormat)))
+
+			if common.OutputFormat == "json" {
+				printer.PrintResource(utils.FormatOutput(data, common.OutputFormat))
+				return nil
+			}
+
+			response := charm.SuccessStyle.Render(utils.FormatOutput(data, common.OutputFormat))
+			printer.PrintResource(response)
 			return nil
 
 		},

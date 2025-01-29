@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/qernal/cli-qernal/charm"
@@ -134,12 +134,11 @@ The secret value is read from stdin, allowing for secure input methods.`,
 					return charm.RenderError("Both --public-key and --private-key flags must be provided", nil)
 				}
 
-				publicKeyContent, err := ioutil.ReadFile(publicKey)
+				publicKeyContent, err := os.ReadFile(publicKey)
 				if err != nil {
 					return charm.RenderError("Unable to read public key file", err)
 				}
-
-				privateKeyContent, err := ioutil.ReadFile(privateKey)
+				privateKeyContent, err := os.ReadFile(privateKey)
 				if err != nil {
 					return charm.RenderError("Unable to read private key file", err)
 				}
@@ -168,8 +167,8 @@ The secret value is read from stdin, allowing for secure input methods.`,
 		},
 	}
 
-	cmd.MarkFlagRequired("name")
-	cmd.MarkFlagRequired("project")
+	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("project")
 	cmd.Flags().StringVarP(&secretType, "type", "t", "", "type of secret to be created (registry, environment, certificate")
 	cmd.Flags().StringVarP(&registry, "registry-url", "r", "", "Url to private container repository (for docker registry use docker.io)")
 

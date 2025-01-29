@@ -58,6 +58,6 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVarP(&projectId, "project", "p", "", "name of the project")
-	cmd.MarkFlagRequired("project")
+	_ = cmd.MarkFlagRequired("project")
 	return cmd
 }

@@ -2,6 +2,7 @@ package org
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/qernal/cli-qernal/charm"
@@ -17,7 +18,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create",
 		Aliases: []string{"new"},
-		Example: "qernal organisation create --name <project_name>",
+		Example: "qernal organisation create --name <organisation_name>",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			ctx := context.Background()
@@ -31,24 +32,30 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("", err)
 			}
 
+			orgName, _ := cmd.Flags().GetString("name")
+
 			org, httpRes, err := qc.OrganisationsAPI.OrganisationsCreate(ctx).OrganisationBody(openapi_chaos_client.OrganisationBody{
 				Name: orgName,
 			}).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
-				printer.Logger.Debug("unable to list projects, request failed", slog.String("error", err.Error()), slog.String("response", resData.(string)))
-				return charm.RenderError("unable to create project", err)
+				if data, ok := resData.(map[string]interface{}); ok {
+					if innerData, ok := data["data"].(map[string]interface{}); ok {
+						if nameErr, ok := innerData["name"].(string); ok {
+							return printer.RenderError("unable to create organisation", errors.New(nameErr))
+						}
+					}
+				}
+				printer.Logger.Debug("unable to list organisations, request failed",
+					slog.String("error", err.Error()),
+					slog.Any("response", resData))
 
+				return printer.RenderError("unable to create organisation", err)
 			}
-
 			var data interface{}
 
 			if common.OutputFormat == "json" {
-				data = map[string]interface{}{
-					"organisation_name": org.Name,
-					"organisation_id":   org.Id,
-					"user_id":           org.UserId,
-				}
+				data = org
 			} else {
 				data = map[string]interface{}{
 					"Created organisation with ID": org.Id,
@@ -61,7 +68,6 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 	}
 	cmd.Flags().StringVarP(&orgName, "name", "n", "", "name of the organisation")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-	cmd.MarkFlagRequired("name")
-
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }
