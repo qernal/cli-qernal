@@ -2,10 +2,8 @@ package secrets
 
 import (
 	"bytes"
-	"strings"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/stretchr/testify/assert"
@@ -15,16 +13,16 @@ import (
 func TestDeleteCmd(t *testing.T) {
 	orgID, _, err := helpers.CreateOrg()
 	if err != nil {
-		t.Fatalf("failed to create org: %v", err)
+		t.Fatalf("failed to create organisation: %v", err)
 	}
 	projectID, _, err := helpers.CreateProj(orgID)
 	if err != nil {
-		t.Fatalf("failed to create org: %v", err)
+		t.Fatalf("failed to create project: %v", err)
 	}
 
-	secretName, _, err := helpers.CreateSecretEnv(projectID, strings.ToUpper(uuid.NewString()))
+	secretName, _, err := helpers.CreateSecretEnv(projectID, helpers.RandomSecretName())
 	if err != nil {
-		t.Fatalf("failed to create org: %v", err)
+		t.Fatalf("failed to create secret: %v", err)
 	}
 
 	args := []string{"--name", secretName, "--project", projectID}
