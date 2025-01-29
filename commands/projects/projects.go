@@ -22,6 +22,7 @@ var ProjectsCmd = &cobra.Command{
 func init() {
 	printer := utils.NewPrinter()
 	ProjectsCmd.AddCommand(NewProjectsListCmd(printer))
+	ProjectsCmd.AddCommand(NewGetCmd(printer))
 	ProjectsCmd.AddCommand(NewCreateCmd(printer))
 	ProjectsCmd.AddCommand(NewDeleteCmd(printer))
 	ProjectsCmd.AddCommand(NewUpdateCmd(printer))
