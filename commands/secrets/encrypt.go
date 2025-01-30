@@ -3,6 +3,7 @@ package secrets
 import (
 	"bufio"
 	"context"
+	"io"
 	"strings"
 
 	"github.com/qernal/cli-qernal/charm"
@@ -29,10 +30,24 @@ func NewEncryptCmd(printer *utils.Printer) *cobra.Command {
 
 			// Read from stdin
 			reader := bufio.NewReader(cmd.InOrStdin())
-			plaintext, err := reader.ReadString('\n')
-			if err != nil {
-				return charm.RenderError("Error reading input from stdin:", err)
+			var sb strings.Builder
+			for {
+				line, err := reader.ReadString('\n')
+				if err != nil {
+					if err == bufio.ErrBufferFull {
+						sb.WriteString(line)
+						continue
+					} else if err == io.EOF {
+						sb.WriteString(line)
+						break
+					} else {
+						return charm.RenderError("Error reading input from stdin:", err)
+					}
+				}
+				sb.WriteString(line)
 			}
+			plaintext := sb.String()
+
 			// Remove trailing newline from input
 			plaintext = strings.TrimSpace(plaintext)
 			ctx := context.Background()
