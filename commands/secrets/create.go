@@ -28,7 +28,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 		Use:     "create",
 		Aliases: []string{"new"},
 		Short:   "Create a new secret",
-		Long: `Create a new secret in your Qernal project. 
+		Long: `Create a new secret in your Qernal project.
 This command supports creating registry, environment, and certificate secrets.
 The secret value is read from stdin, allowing for secure input methods.`,
 		Example: ` # Create a registry secret
@@ -111,8 +111,8 @@ The secret value is read from stdin, allowing for secure input methods.`,
 				encryptedValue, err := client.EncryptLocalSecret(dek.Payload.SecretMetaResponseDek.Public, plaintext)
 				if err != nil {
 					return charm.RenderError("unable to  encrypt input", err)
-
 				}
+
 				encryptionRef := fmt.Sprintf(`keys/dek/%d`, dek.Revision)
 				_, _, err = qc.SecretsAPI.ProjectsSecretsCreate(ctx, projectID).SecretBody(openapi_chaos_client.SecretBody{
 					Name:       strings.ToUpper(secretName),
@@ -143,6 +143,12 @@ The secret value is read from stdin, allowing for secure input methods.`,
 					return charm.RenderError("Unable to read private key file", err)
 				}
 
+				// encrypt private key
+				privateKeyEncrypted, err := client.EncryptLocalSecret(dek.Payload.SecretMetaResponseDek.Public, strings.TrimSpace(string(privateKeyContent)))
+				if err != nil {
+					return charm.RenderError("unable to private key", err)
+				}
+
 				encryptionRef := fmt.Sprintf(`keys/dek/%d`, dek.Revision)
 				_, _, err = qc.SecretsAPI.ProjectsSecretsCreate(ctx, projectID).SecretBody(openapi_chaos_client.SecretBody{
 					Name:       strings.ToUpper(secretName),
@@ -151,7 +157,7 @@ The secret value is read from stdin, allowing for secure input methods.`,
 					Payload: openapi_chaos_client.SecretCreatePayload{
 						SecretCertificate: &openapi_chaos_client.SecretCertificate{
 							Certificate:      strings.TrimSpace(string(publicKeyContent)),
-							CertificateValue: strings.TrimSpace(string(privateKeyContent)),
+							CertificateValue: privateKeyEncrypted,
 						},
 					},
 				}).Execute()
