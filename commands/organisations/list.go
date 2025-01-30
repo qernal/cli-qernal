@@ -2,12 +2,12 @@ package org
 
 import (
 	"context"
-	"errors"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -28,26 +28,24 @@ func NewOrgListCmd(printer *utils.Printer) *cobra.Command {
 			if err != nil {
 				return charm.RenderError("", err)
 			}
-			orgResp, httpRes, err := qc.OrganisationsAPI.OrganisationsList(ctx).Execute()
+
+			maxResults, _ := cmd.Flags().GetInt32("max")
+
+			orgs, err := helpers.PaginateOrganisations(printer, ctx, &qc, maxResults)
 			if err != nil {
-				resData, _ := client.ParseResponseData(httpRes)
-				if data, ok := resData.(map[string]interface{}); ok {
-					if innerData, ok := data["data"].(map[string]interface{}); ok {
-						if nameErr, ok := innerData["name"].(string); ok {
-							return printer.RenderError("unable to create organisation", errors.New(nameErr))
-						}
-					}
-				}
+				return charm.RenderError("unable to list organisations", err)
+			}
+			if maxResults > 0 && len(orgs) > int(maxResults) {
+				orgs = orgs[:maxResults]
 			}
 
 			if common.OutputFormat == "json" {
-				printer.PrintResource(utils.FormatOutput(orgResp.Data, common.OutputFormat))
+				printer.PrintResource(utils.FormatOutput(orgs, common.OutputFormat))
 				return nil
 			}
 
-			table := charm.RenderOrgTable(orgResp.Data)
+			table := charm.RenderOrgTable(orgs)
 			printer.PrintResource(table)
-			//TODO: paginate results
 			return nil
 		},
 	}
