@@ -248,6 +248,7 @@ func GetDefaultHost(projid string) (string, error) {
 	return "", errors.New("no default host on project")
 }
 
+// specific to the secret type
 func RandomSecretName() string {
 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, 8)
