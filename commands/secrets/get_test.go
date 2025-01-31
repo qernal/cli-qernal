@@ -23,7 +23,9 @@ func TestGetSecret(t *testing.T) {
 	}
 
 	secretName, _, err := helpers.CreateSecretEnv(projId, helpers.RandomSecretName())
-
+	if err != nil {
+		t.Fatalf("unable to create test secret : %v", err)
+	}
 	var buf bytes.Buffer
 	printer := utils.NewPrinter()
 	printer.SetOut(&buf)
