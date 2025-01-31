@@ -2,6 +2,7 @@ package charm
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -183,4 +184,60 @@ func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) strin
 	// Render the table
 	return t.View()
 
+}
+
+func RenderProviderTable(providers []openapi_chaos_client.Provider) string {
+	// Define styles
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Padding(0, 1)
+
+	providerNameStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#FF69B4")).
+		Padding(0, 1)
+
+	cellStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#C8C8C8")).
+		Padding(0, 1, 1)
+
+	// Prepare rows
+	var rows []table.Row
+	for _, provider := range providers {
+		// Join array values with commas for display
+		countries := strings.Join(provider.Locations.Countries, ", ")
+		cities := strings.Join(provider.Locations.Cities, ", ")
+		continents := strings.Join(provider.Locations.Continents, ", ")
+
+		row := table.Row{
+			providerNameStyle.Render(provider.Name),
+			countries,
+			cities,
+			continents,
+		}
+		rows = append(rows, row)
+	}
+
+	columns := []table.Column{
+		{Title: "Name", Width: 35},
+		{Title: "Countries", Width: 35},
+		{Title: "City", Width: 35},
+		{Title: "Continents", Width: 15},
+	}
+
+	// Create and style the table
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(len(providers)),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = headerStyle
+	s.Cell = cellStyle
+
+	t.SetStyles(s)
+
+	return t.View()
 }
