@@ -62,6 +62,7 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&secretName, "name", "", "name of the secret")
 	cmd.Flags().StringVar(&projectID, "project", "", "ID of the project")
+	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 	_ = cmd.MarkFlagRequired("name")
 	_ = cmd.MarkFlagRequired("project")
 	return cmd

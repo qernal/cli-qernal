@@ -24,6 +24,7 @@ import (
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 )
 
+// CreateOrg returns the ID and name of the created org
 func CreateOrg() (string, string, error) {
 	token, err := auth.GetQernalToken()
 	if err != nil {
@@ -66,6 +67,7 @@ func DeleteOrg(orgid string) {
 	}
 }
 
+// CreateProj returns the ID and name of the created project
 func CreateProj(orgid string) (string, string, error) {
 	token, err := auth.GetQernalToken()
 	if err != nil {
