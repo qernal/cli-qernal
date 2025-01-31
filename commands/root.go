@@ -7,6 +7,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	org "github.com/qernal/cli-qernal/commands/organisations"
 	"github.com/qernal/cli-qernal/commands/projects"
+	"github.com/qernal/cli-qernal/commands/providers"
 	"github.com/qernal/cli-qernal/commands/secrets"
 	"github.com/qernal/cli-qernal/pkg/build"
 	"github.com/qernal/cli-qernal/pkg/common"
@@ -48,5 +49,6 @@ func init() {
 	RootCmd.AddCommand(secrets.SecretsCmd)
 	RootCmd.AddCommand(projects.ProjectsCmd)
 	RootCmd.AddCommand(org.OrgCmd)
+	RootCmd.AddCommand(providers.ProvidersCmd)
 
 }
