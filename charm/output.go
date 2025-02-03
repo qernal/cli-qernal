@@ -233,3 +233,95 @@ func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 	return t.View()
 
 }
+
+func RenderDNSTable(records map[string]string) string {
+
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Padding(0, 2)
+	cellStyle := lipgloss.NewStyle().
+		Padding(0, 2)
+
+	columns := []table.Column{
+		{Title: "Record Type", Width: 15},
+		{Title: "Value", Width: 40},
+	}
+
+	var rows []table.Row
+	for recordType, value := range records {
+		row := table.Row{
+			recordType,
+			value,
+		}
+		rows = append(rows, row)
+	}
+
+	// Create and configure the table
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(len(records)),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = headerStyle
+	s.Cell = cellStyle
+	t.SetStyles(s)
+
+	return t.View()
+}
+
+func RenderHostTable(hosts []openapi_chaos_client.Host) string {
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Padding(0, 2)
+	cellStyle := lipgloss.NewStyle().
+		Padding(0, 2)
+
+	columns := []table.Column{
+		{Title: "Hostname", Width: 30},
+		{Title: "Status", Width: 15},
+		{Title: "Certificate", Width: 20},
+		{Title: "State", Width: 10},
+	}
+
+	var rows []table.Row
+	for _, host := range hosts {
+
+		certStatus := "None"
+		if host.Certificate != nil && *host.Certificate != "" {
+			certStatus = "Configured"
+		}
+
+		state := "Enabled"
+		if host.Disabled {
+			state = "Disabled"
+		}
+
+		row := table.Row{
+			host.Host,
+			string(host.VerificationStatus),
+			certStatus,
+			state,
+		}
+		rows = append(rows, row)
+	}
+
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(len(hosts)),
+	)
+
+	// Apply the styles
+	s := table.DefaultStyles()
+	s.Header = headerStyle
+	s.Cell = cellStyle
+	t.SetStyles(s)
+
+	return t.View()
+}
