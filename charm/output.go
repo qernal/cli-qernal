@@ -1,8 +1,11 @@
 package charm
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -140,8 +143,8 @@ func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) strin
 
 	// Define table columns with increased width for IDs
 	columns := []table.Column{
-		{Title: "Name", Width: 20},
-		{Title: "Type", Width: 14},
+		{Title: "Name", Width: 25},
+		{Title: "Type", Width: 60},
 		{Title: "Revison", Width: 10},
 		{Title: "Date Created", Width: 16},
 	}
@@ -159,9 +162,39 @@ func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) strin
 		// Format the date to be more human-friendly
 		formattedDate := date.Format("2006-01-02 15:04")
 
+		// meta for certificates
+		certSNIName := ""
+		certExpiry := ""
+		if secret.Type == "certificate" {
+			certPEM := secret.Payload.SecretMetaResponseCertificatePayload.Certificate
+			certBlock, _ := pem.Decode([]byte(certPEM))
+
+			if certBlock == nil {
+				// TODO: add debug for this
+				break
+			}
+
+			cert := certBlock.Bytes
+			x509Cert, err := x509.ParseCertificate(cert)
+			if err != nil {
+				// TODO: add debug for this
+				break
+			}
+
+			certSNIName = x509Cert.Subject.CommonName
+			certExpiry = x509Cert.NotAfter.Format("2006-01-02 15:04")
+		}
+
+		secretType := ""
+		if certSNIName != "" {
+			secretType = fmt.Sprintf("%s (%s, %s)", secret.Type, certSNIName, certExpiry)
+		} else {
+			secretType = string(secret.Type)
+		}
+
 		row := table.Row{
 			secret.Name,
-			string(secret.Type),
+			secretType,
 			string(secret.Revision),
 			formattedDate,
 		}
@@ -283,17 +316,18 @@ func RenderHostTable(hosts []openapi_chaos_client.Host) string {
 
 	columns := []table.Column{
 		{Title: "Hostname", Width: 30},
-		{Title: "Status", Width: 15},
-		{Title: "Certificate", Width: 20},
+		{Title: "Status", Width: 10},
+		{Title: "Certificate", Width: 30},
 		{Title: "State", Width: 10},
 	}
 
 	var rows []table.Row
 	for _, host := range hosts {
 
-		certStatus := "None"
+		certName := "None"
 		if host.Certificate != nil && *host.Certificate != "" {
-			certStatus = "Configured"
+			certRefParts := strings.Split(*host.Certificate, "/")
+			certName = certRefParts[len(certRefParts)-1]
 		}
 
 		state := "Enabled"
@@ -304,7 +338,7 @@ func RenderHostTable(hosts []openapi_chaos_client.Host) string {
 		row := table.Row{
 			host.Host,
 			string(host.VerificationStatus),
-			certStatus,
+			certName,
 			state,
 		}
 		rows = append(rows, row)
