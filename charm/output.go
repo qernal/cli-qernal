@@ -316,9 +316,9 @@ func RenderHostTable(hosts []openapi_chaos_client.Host) string {
 
 	columns := []table.Column{
 		{Title: "Hostname", Width: 30},
-		{Title: "Status", Width: 10},
+		{Title: "Verification Status", Width: 10},
 		{Title: "Certificate", Width: 30},
-		{Title: "State", Width: 10},
+		{Title: "State", Width: 20},
 	}
 
 	var rows []table.Row
@@ -330,6 +330,11 @@ func RenderHostTable(hosts []openapi_chaos_client.Host) string {
 			certName = certRefParts[len(certRefParts)-1]
 		}
 
+		routeable := ""
+		if host.VerificationStatus != "completed" && !host.Disabled {
+			routeable = " (unroutable, not verified)"
+		}
+
 		state := "Enabled"
 		if host.Disabled {
 			state = "Disabled"
@@ -339,7 +344,7 @@ func RenderHostTable(hosts []openapi_chaos_client.Host) string {
 			host.Host,
 			string(host.VerificationStatus),
 			certName,
-			state,
+			fmt.Sprintf("%s%s", state, routeable),
 		}
 		rows = append(rows, row)
 	}

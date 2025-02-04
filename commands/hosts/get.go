@@ -3,6 +3,8 @@ package hosts
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
@@ -62,18 +64,30 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 				data = host
 			} else {
 				// Format relevant host information for text output
-				data = map[string]interface{}{
-					"Hostname":            host.Host,
-					"Verification Status": string(host.VerificationStatus),
-					"Project ID":          host.ProjectId,
-					"State":               getHostState(host.Disabled),
-					"Certificate":         getCertificateStatus(host.Certificate),
-					"Read Only":           getReadOnlyStatus(host.ReadOnly),
+				routeable := ""
+				if host.VerificationStatus != "completed" && !host.Disabled {
+					routeable = " (unroutable, not verified)"
 				}
-			}
-			if common.OutputFormat == "json" {
-				printer.PrintResource(utils.FormatOutput(data, common.OutputFormat))
-				return nil
+
+				certName := "None"
+				if host.Certificate != nil && *host.Certificate != "" {
+					certRefParts := strings.Split(*host.Certificate, "/")
+					certName = certRefParts[len(certRefParts)-1]
+				}
+
+				// TODO: persist order of this render
+				data = map[string]interface{}{
+					"Hostname":                host.Host,
+					"Project ID":              host.ProjectId,
+					"State":                   fmt.Sprintf("%s%s", getHostState(host.Disabled), routeable),
+					"Certificate":             certName,
+					"Read Only":               getReadOnlyStatus(host.ReadOnly),
+					"Verification TXT Record": host.TxtVerification,
+					"Verification Status":     string(host.VerificationStatus),
+					"-------------------":     "",
+					"A Record":                publicIPV4,
+					"AAAA Record":             publicIPV6,
+				}
 			}
 
 			response := charm.SuccessStyle.Render(utils.FormatOutput(data, common.OutputFormat))
