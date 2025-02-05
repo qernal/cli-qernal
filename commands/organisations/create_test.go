@@ -10,6 +10,7 @@ import (
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
+	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,15 +22,8 @@ func TestCreateOrg(t *testing.T) {
 	printer := utils.NewPrinter()
 	printer.SetOut(&buf)
 
-	var expectedJson struct {
-		ID     string `json:"organisation_id"`
-		Name   string `json:"organisation_name"`
-		UserID string `json:"user_id"`
-		Date   struct {
-			CreatedAt string `json:"created_at"`
-			UpdatedAt string `json:"updated_at"`
-		} `json:"date"`
-	}
+	var response openapi_chaos_client.OrganisationResponse
+
 	cmd := NewCreateCmd(printer)
 	args := []string{"-o", "json", "--name", orgName}
 	cmd.SetArgs(args)
@@ -39,7 +33,7 @@ func TestCreateOrg(t *testing.T) {
 		t.Fatalf("unable to execute command: %v", err)
 	}
 	// check if json is as expected
-	err = json.Unmarshal(buf.Bytes(), &expectedJson)
+	err = json.Unmarshal(buf.Bytes(), &response)
 	if err != nil {
 		t.Fatalf("json result is not in expected format %v", err)
 	}

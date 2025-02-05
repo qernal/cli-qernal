@@ -147,6 +147,21 @@ func (qc *QernalAPIClient) GetOrgByName(name string) (openapiclient.Organisation
 	}
 	return orgResp.Data[0], nil
 }
+func (qc *QernalAPIClient) GetSecretByName(name, projectID string) (*openapiclient.SecretMetaResponse, error) {
+	ctx := context.Background()
+	secretResp, httpRes, err := qc.SecretsAPI.ProjectsSecretsGet(ctx, projectID, name).Execute()
+	if err != nil {
+		resData, httperr := ParseResponseData(httpRes)
+		if httperr != nil {
+			return &openapiclient.SecretMetaResponse{}, fmt.Errorf("failed to fetch secret by name: unexpected HTTP error: %w", httperr)
+		}
+		return &openapiclient.SecretMetaResponse{}, fmt.Errorf("failed to fetch secret by  name: unexpected error: %w, detail: %v", err, resData)
+	}
+	if secretResp == nil {
+		return &openapiclient.SecretMetaResponse{}, fmt.Errorf("unable to find secret with name %s", name)
+	}
+	return secretResp, nil
+}
 
 func GetEnv(key, defaultValue string) string {
 	err := godotenv.Load()

@@ -1,4 +1,4 @@
-package org
+package secrets
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
 	"github.com/qernal/cli-qernal/pkg/utils"
+	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +16,7 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get",
 		Aliases: []string{"get"},
-		Example: "qernal organisation get --name <org name>",
+		Example: "qernal secrets get --name <org name>",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")
@@ -33,22 +34,19 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			orgName, _ := cmd.Flags().GetString("name")
+			secretName, _ := cmd.Flags().GetString("name")
+			projectID, _ := cmd.Flags().GetString("project")
 
-			org, err := qc.GetOrgByName(orgName)
+			secret, err := qc.GetSecretByName(secretName, projectID)
 			if err != nil {
 				return printer.RenderError("x", err)
 			}
 
 			var data interface{}
 			if common.OutputFormat == "json" {
-				data = org
+				data = secret
 			} else {
-				data = map[string]interface{}{
-					"Name":    org.Name,
-					"User ID": org.UserId,
-					"Org ID":  org.Id,
-				}
+				data = getSecretData(secret)
 			}
 
 			if common.OutputFormat == "json" {
@@ -62,9 +60,37 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 
 		},
 	}
-	cmd.Flags().StringVar(&orgName, "name", "", "name of the organisation")
+	cmd.Flags().StringVar(&secretName, "name", "", "name of the secret")
+	cmd.Flags().StringVar(&projectID, "project", "", "ID of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-
 	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("project")
 	return cmd
+}
+
+// getSecretData a map of relevant info for each secret type
+func getSecretData(secret *openapi_chaos_client.SecretMetaResponse) map[string]interface{} {
+	data := map[string]interface{}{}
+
+	switch secret.Type {
+	case openapi_chaos_client.SECRETMETATYPE_ENVIRONMENT:
+		data["Name"] = secret.Name
+		data["Type"] = secret.Type
+		data["Revision"] = secret.Revision
+		return data
+	case openapi_chaos_client.SECRETMETATYPE_REGISTRY:
+		data["Name"] = secret.Name
+		data["Type"] = secret.Type
+		data["Revision"] = secret.Revision
+		data["Registry"] = secret.Payload.SecretMetaResponseRegistryPayload.Registry
+
+	case openapi_chaos_client.SECRETMETATYPE_CERTIFICATE:
+		data["Name"] = secret.Name
+		data["Type"] = secret.Type
+		data["Revision"] = secret.Revision
+		data["Certificate"] = secret.Payload.SecretMetaResponseCertificatePayload.Certificate
+
+	}
+
+	return data
 }

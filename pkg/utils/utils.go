@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	math_rand "math/rand"
 	"os"
 	"strings"
 
@@ -144,4 +145,14 @@ func (p *Printer) PrintResource(data string) {
 		out = p.resourceOut
 	}
 	fmt.Fprintln(out, data)
+}
+
+// generate random strings of a given length, for testing
+func GenerateRandomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[math_rand.Intn(len(charset))]
+	}
+	return string(b)
 }

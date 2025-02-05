@@ -3,6 +3,8 @@ package secrets
 import (
 	"bytes"
 	"encoding/json"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/qernal/cli-qernal/pkg/helpers"
@@ -56,5 +58,61 @@ func TestEncryptCmd(t *testing.T) {
 
 	t.Cleanup(func() {
 		helpers.DeleteOrg(orgID)
+	})
+}
+
+func TestEncryptCmdWithFile(t *testing.T) {
+	filePath := "/tmp/" + utils.GenerateRandomString(6) + ".txt"
+	randomStrings := make([]string, 10)
+	for i := range randomStrings {
+		randomStrings[i] = utils.GenerateRandomString(60)
+	}
+	fileContent := []byte(strings.Join(randomStrings, "\n"))
+
+	err := os.WriteFile(filePath, fileContent, 0644)
+	require.NoError(t, err)
+
+	outputPrinter := utils.NewPrinter()
+
+	orgID, _, err := helpers.CreateOrg()
+	if err != nil {
+		t.Fatalf("failed to create organization: %v", err)
+	}
+	projectID, _, err := helpers.CreateProj(orgID)
+	if err != nil {
+		t.Fatalf("failed to create project: %v", err)
+	}
+
+	commandArgs := []string{"--project", projectID, "--output", "json"}
+
+	// Set stdout to controlled buffer
+	var outputBuffer bytes.Buffer
+	outputPrinter.SetOut(&outputBuffer)
+
+	var encryptionOutput struct {
+		RevisionID     int32  `json:"revision_id"`
+		EncryptedValue string `json:"encrypted_value"`
+	}
+
+	inputBuffer, err := os.ReadFile(filePath)
+	require.NoError(t, err)
+
+	encryptCmd := NewEncryptCmd(outputPrinter)
+	encryptCmd.SetArgs(commandArgs)
+	encryptCmd.SetIn(bytes.NewReader(inputBuffer))
+
+	err = encryptCmd.Execute()
+	require.NoError(t, err)
+
+	err = json.Unmarshal(outputBuffer.Bytes(), &encryptionOutput)
+	require.NoError(t, err)
+
+	println(len(encryptionOutput.EncryptedValue))
+
+	assert.Greater(t, len(encryptionOutput.EncryptedValue), 200)
+
+	t.Cleanup(func() {
+		helpers.DeleteOrg(orgID)
+		os.Remove(filePath)
 	})
 }
