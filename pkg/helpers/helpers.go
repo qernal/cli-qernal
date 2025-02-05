@@ -8,7 +8,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"errors"
 	"fmt"
 	"math/big"
 	math_rand "math/rand"
@@ -215,35 +214,6 @@ func FetchDek(projectID string) (string, int32, error) {
 	}
 
 	return resp.Payload.SecretMetaResponseDek.Public, resp.Revision, nil
-}
-
-func GetDefaultHost(projid string) (string, error) {
-	ctx := context.Background()
-	token, err := auth.GetQernalToken()
-	if err != nil {
-		return "", err
-	}
-
-	qc, err := client.New(ctx, nil, nil, token)
-	if err != nil {
-		return "", err
-	}
-	resp, r, err := qc.HostsAPI.ProjectsHostsList(context.Background(), projid).Execute()
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error when calling `ProjectsAPI.ProjectsCreate``: %v\n", err)
-		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-
-		return "", err
-	}
-
-	for _, host := range resp.Data {
-		if host.ReadOnly {
-			return host.Host, nil
-		}
-	}
-
-	return "", errors.New("no default host on project")
 }
 
 func RandomSecretName() string {

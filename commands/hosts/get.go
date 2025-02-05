@@ -10,6 +10,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -79,9 +80,9 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 				data = map[string]interface{}{
 					"Hostname":                host.Host,
 					"Project ID":              host.ProjectId,
-					"State":                   fmt.Sprintf("%s%s", getHostState(host.Disabled), routeable),
+					"State":                   fmt.Sprintf("%s%s", helpers.GetHostState(host.Disabled), routeable),
 					"Certificate":             certName,
-					"Read Only":               getReadOnlyStatus(host.ReadOnly),
+					"Read Only":               helpers.GetReadOnlyStatus(host.ReadOnly),
 					"Verification TXT Record": host.TxtVerification,
 					"Verification Status":     string(host.VerificationStatus),
 					"-------------------":     "",
@@ -100,25 +101,4 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 	_ = cmd.MarkFlagRequired("project")
 
 	return cmd
-}
-
-func getHostState(disabled bool) string {
-	if disabled {
-		return "Disabled"
-	}
-	return "Enabled"
-}
-
-func getCertificateStatus(cert *string) string {
-	if cert == nil || *cert == "" {
-		return "Not configured"
-	}
-	return "Configured"
-}
-
-func getReadOnlyStatus(readOnly bool) string {
-	if readOnly {
-		return "Yes (*.qrnl.app domain)"
-	}
-	return "No"
 }
