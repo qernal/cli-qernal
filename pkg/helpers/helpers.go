@@ -13,6 +13,7 @@ import (
 	"math/big"
 	math_rand "math/rand"
 	"os"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
