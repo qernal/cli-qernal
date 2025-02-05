@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -12,6 +13,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/pkg/oauth"
 
 	openapiclient "github.com/qernal/openapi-chaos-go-client"
@@ -146,6 +148,49 @@ func (qc *QernalAPIClient) GetOrgByName(name string) (openapiclient.Organisation
 		return openapiclient.OrganisationResponse{}, fmt.Errorf("unable to find project with name %s", name)
 	}
 	return orgResp.Data[0], nil
+}
+func (qc *QernalAPIClient) GetSecretByName(name, projectID string) (*openapiclient.SecretMetaResponse, error) {
+	ctx := context.Background()
+	secretResp, httpRes, err := qc.SecretsAPI.ProjectsSecretsGet(ctx, projectID, name).Execute()
+	if err != nil {
+		resData, httperr := ParseResponseData(httpRes)
+		if httperr != nil {
+			return &openapiclient.SecretMetaResponse{}, fmt.Errorf("failed to fetch secret by name: unexpected HTTP error: %w", httperr)
+		}
+		return &openapiclient.SecretMetaResponse{}, fmt.Errorf("failed to fetch secret by  name: unexpected error: %w, detail: %v", err, resData)
+	}
+	if secretResp == nil {
+		return &openapiclient.SecretMetaResponse{}, fmt.Errorf("unable to find secret with name %s", name)
+	}
+	return secretResp, nil
+}
+
+func (qc *QernalAPIClient) GetProjectByName(name string) (*openapiclient.ProjectResponse, error) {
+	ctx := context.Background()
+	projects, httpRes, err := qc.ProjectsAPI.ProjectsList(ctx).FName(name).Execute()
+	if err != nil {
+		resData, _ := ParseResponseData(httpRes)
+		if data, ok := resData.(map[string]interface{}); ok {
+			if innerData, ok := data["data"].(map[string]interface{}); ok {
+				if nameErr, ok := innerData["name"].(string); ok {
+					return &openapiclient.ProjectResponse{}, fmt.Errorf("unable to create organisation %s", errors.New(nameErr))
+				}
+			}
+		}
+
+		return &openapiclient.ProjectResponse{}, charm.RenderError("unable to create organisation", err)
+	}
+	if len(projects.Data) <= 0 {
+		return &openapiclient.ProjectResponse{}, charm.RenderError("unable to find project with name " + name)
+	}
+
+	project := projects.Data[0]
+	_, _, err = qc.ProjectsAPI.ProjectsDelete(ctx, project.Id).Execute()
+	if err != nil {
+		return &openapiclient.ProjectResponse{}, charm.RenderError("error deleting qernal project", err)
+	}
+
+	return &project, nil
 }
 
 func GetEnv(key, defaultValue string) string {

@@ -1,4 +1,4 @@
-package org
+package projects
 
 import (
 	"context"
@@ -15,7 +15,7 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get",
 		Aliases: []string{"get"},
-		Example: "qernal organisation get --name <org name>",
+		Example: "qernal project get --name <org name>",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")
@@ -33,21 +33,22 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			orgName, _ := cmd.Flags().GetString("name")
+			name, _ := cmd.Flags().GetString("name")
 
-			org, err := qc.GetOrgByName(orgName)
+			project, err := qc.GetProjectByName(name)
 			if err != nil {
-				return printer.RenderError("x", err)
+				return charm.RenderError("", err)
 			}
 
 			var data interface{}
+
 			if common.OutputFormat == "json" {
-				data = org
+				data = project
 			} else {
 				data = map[string]interface{}{
-					"Name":    org.Name,
-					"User ID": org.UserId,
-					"Org ID":  org.Id,
+					"Name":       project.Name,
+					"Project ID": project.Id,
+					"Org ID":     project.OrgId,
 				}
 			}
 
@@ -62,9 +63,8 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 
 		},
 	}
-	cmd.Flags().StringVar(&orgName, "name", "", "name of the organisation")
+	cmd.Flags().StringVarP(&name, "name", "n", "", "name of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-
 	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }

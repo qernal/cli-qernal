@@ -25,7 +25,8 @@ var SecretsCmd = &cobra.Command{
 
 func init() {
 	printer := utils.NewPrinter()
-	SecretsCmd.AddCommand(SecretsListCmd)
+	SecretsCmd.AddCommand(NewSecretsListCmd(printer))
+	SecretsCmd.AddCommand(NewGetCmd(printer))
 	SecretsCmd.AddCommand(NewEncryptCmd(printer))
 	SecretsCmd.AddCommand(NewDeleteCmd(printer))
 	SecretsCmd.AddCommand(NewCreateCmd(printer))
