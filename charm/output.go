@@ -3,6 +3,7 @@ package charm
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -232,4 +233,46 @@ func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 	// Render the table
 	return t.View()
 
+}
+
+func RenderProviderTable(providers []openapi_chaos_client.Provider) string {
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Padding(0, 0)
+
+	cellStyle := lipgloss.NewStyle().
+		Padding(0, 0)
+
+	columns := []table.Column{
+		{Title: "Name", Width: 34},
+		{Title: "Countries", Width: 20},
+		{Title: "Cities", Width: 20},
+		{Title: "Continents", Width: 20},
+	}
+
+	var rows []table.Row
+	for _, provider := range providers {
+		row := table.Row{
+			lipgloss.NewStyle().Foreground(lipgloss.Color("#FF69B4")).Render(provider.Name),
+			strings.Join(provider.Locations.Countries, ", "),
+			strings.Join(provider.Locations.Cities, ", "),
+			strings.Join(provider.Locations.Continents, ", "),
+		}
+		rows = append(rows, row)
+	}
+
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(len(providers)),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = headerStyle
+	s.Cell = cellStyle
+	t.SetStyles(s)
+
+	return t.View()
 }
