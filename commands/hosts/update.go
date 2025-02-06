@@ -46,7 +46,7 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 
 			hostName, _ := cmd.Flags().GetString("name")
 			cert, _ := cmd.Flags().GetString("cert")
-			isDisabled, _ := cmd.Flags().GetBool("disable")
+			isEnabled, _ := cmd.Flags().GetBool("enable")
 			projectName, _ := cmd.Flags().GetString("project")
 
 			project, err := qc.GetProjectByName(projectName)
@@ -57,7 +57,7 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 			ref := fmt.Sprintf("projects:%s/%s", project.Id, strings.ToUpper(cert))
 			_, httpRes, err := qc.HostsAPI.ProjectsHostsUpdate(ctx, project.Id, hostName).HostBodyPatch(openapi_chaos_client.HostBodyPatch{
 				Certificate: &ref,
-				Disabled:    &isDisabled,
+				Disabled:    &isEnabled,
 			}).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
