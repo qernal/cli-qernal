@@ -1,6 +1,8 @@
 package charm
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,17 +14,14 @@ import (
 )
 
 func RenderProjectTable(projects []openapi_chaos_client.ProjectResponse) string {
-	// Define styles
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("#FAFAFA")).
-		// Background(lipgloss.Color("#7D56F4")).
 		Padding(0, 1)
 
 	cellStyle := lipgloss.NewStyle().
 		Padding(0, 1)
 
-	// Define table columns with increased width for IDs
 	columns := []table.Column{
 		{Title: "ID", Width: 36},
 		{Title: "Org ID", Width: 36},
@@ -30,17 +29,14 @@ func RenderProjectTable(projects []openapi_chaos_client.ProjectResponse) string 
 		{Title: "Date Created", Width: 16},
 	}
 
-	// Prepare rows
 	var rows []table.Row
 	for _, proj := range projects {
-		// Parse the date string
 		date, err := time.Parse(time.RFC3339Nano, proj.Date.CreatedAt)
 		if err != nil {
 			fmt.Println("Error parsing date:", err)
 			continue
 		}
 
-		// Format the date to be more human-friendly
 		formattedDate := date.Format("2006-01-02 15:04")
 
 		row := table.Row{
@@ -52,7 +48,6 @@ func RenderProjectTable(projects []openapi_chaos_client.ProjectResponse) string 
 		rows = append(rows, row)
 	}
 
-	// Create and style the table
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),
@@ -65,22 +60,18 @@ func RenderProjectTable(projects []openapi_chaos_client.ProjectResponse) string 
 	s.Cell = cellStyle
 	t.SetStyles(s)
 
-	// Render the table
 	return t.View()
 }
 
 func RenderOrgTable(orgs []openapi_chaos_client.OrganisationResponse) string {
-	// Define styles
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("#FAFAFA")).
-		// Background(lipgloss.Color("#7D56F4")).
 		Padding(0, 1)
 
 	cellStyle := lipgloss.NewStyle().
 		Padding(0, 1)
 
-	// Define table columns with increased width for IDs
 	columns := []table.Column{
 		{Title: "Org ID", Width: 36},
 		{Title: "Name", Width: 20},
@@ -88,17 +79,14 @@ func RenderOrgTable(orgs []openapi_chaos_client.OrganisationResponse) string {
 		{Title: "User ID", Width: 20},
 	}
 
-	// Prepare rows
 	var rows []table.Row
 	for _, org := range orgs {
-		// Parse the date string
 		date, err := time.Parse(time.RFC3339Nano, org.Date.CreatedAt)
 		if err != nil {
 			fmt.Println("Error parsing date:", err)
 			continue
 		}
 
-		// Format the date to be more human-friendly
 		formattedDate := date.Format("2006-01-02 15:04")
 
 		row := table.Row{
@@ -110,7 +98,6 @@ func RenderOrgTable(orgs []openapi_chaos_client.OrganisationResponse) string {
 		rows = append(rows, row)
 	}
 
-	// Create and style the table
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),
@@ -123,53 +110,71 @@ func RenderOrgTable(orgs []openapi_chaos_client.OrganisationResponse) string {
 	s.Cell = cellStyle
 	t.SetStyles(s)
 
-	// Render the table
 	return t.View()
 }
 
 func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) string {
-
-	// Define styles
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("#FAFAFA")).
-		// Background(lipgloss.Color("#7D56F4")).
 		Padding(0, 1)
 
 	cellStyle := lipgloss.NewStyle().
 		Padding(0, 1)
 
-	// Define table columns with increased width for IDs
 	columns := []table.Column{
-		{Title: "Name", Width: 20},
-		{Title: "Type", Width: 14},
+		{Title: "Name", Width: 25},
+		{Title: "Type", Width: 60},
 		{Title: "Revison", Width: 10},
 		{Title: "Date Created", Width: 16},
 	}
 
-	// Prepare rows
 	var rows []table.Row
 	for _, secret := range secrets {
-		// Parse the date string
 		date, err := time.Parse(time.RFC3339Nano, secret.Date.CreatedAt)
 		if err != nil {
 			fmt.Println("Error parsing date:", err)
 			continue
 		}
 
-		// Format the date to be more human-friendly
 		formattedDate := date.Format("2006-01-02 15:04")
+
+		certSNIName := ""
+		certExpiry := ""
+		if secret.Type == "certificate" {
+			certPEM := secret.Payload.SecretMetaResponseCertificatePayload.Certificate
+			certBlock, _ := pem.Decode([]byte(certPEM))
+
+			if certBlock == nil {
+				break
+			}
+
+			cert := certBlock.Bytes
+			x509Cert, err := x509.ParseCertificate(cert)
+			if err != nil {
+				break
+			}
+
+			certSNIName = x509Cert.Subject.CommonName
+			certExpiry = x509Cert.NotAfter.Format("2006-01-02 15:04")
+		}
+
+		secretType := ""
+		if certSNIName != "" {
+			secretType = fmt.Sprintf("%s (%s, %s)", secret.Type, certSNIName, certExpiry)
+		} else {
+			secretType = string(secret.Type)
+		}
 
 		row := table.Row{
 			secret.Name,
-			string(secret.Type),
+			secretType,
 			string(secret.Revision),
 			formattedDate,
 		}
 		rows = append(rows, row)
 	}
 
-	// Create and style the table
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),
@@ -182,17 +187,13 @@ func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) strin
 	s.Cell = cellStyle
 	t.SetStyles(s)
 
-	// Render the table
 	return t.View()
-
 }
-func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 
-	// Define styles
+func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("#FAFAFA")).
-		// Background(lipgloss.Color("#7D56F4")).
 		Padding(0, 2)
 
 	cellStyle := lipgloss.NewStyle().
@@ -205,7 +206,6 @@ func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 		{Title: "Secrets", Width: 15},
 	}
 
-	// Prepare rows
 	var rows []table.Row
 	for _, function := range functions {
 		secrets := strconv.Itoa(len(function.Secrets))
@@ -230,9 +230,101 @@ func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 	s.Cell = cellStyle
 	t.SetStyles(s)
 
-	// Render the table
 	return t.View()
+}
 
+func RenderDNSTable(records map[string]string) string {
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Padding(0, 2)
+	cellStyle := lipgloss.NewStyle().
+		Padding(0, 2)
+
+	columns := []table.Column{
+		{Title: "Record Type", Width: 15},
+		{Title: "Value", Width: 40},
+	}
+
+	var rows []table.Row
+	for recordType, value := range records {
+		row := table.Row{
+			recordType,
+			value,
+		}
+		rows = append(rows, row)
+	}
+
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(len(records)),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = headerStyle
+	s.Cell = cellStyle
+	t.SetStyles(s)
+
+	return t.View()
+}
+
+func RenderHostTable(hosts []openapi_chaos_client.Host) string {
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Padding(0, 2)
+	cellStyle := lipgloss.NewStyle().
+		Padding(0, 2)
+
+	columns := []table.Column{
+		{Title: "Hostname", Width: 30},
+		{Title: "Verification Status", Width: 10},
+		{Title: "Certificate", Width: 30},
+		{Title: "State", Width: 20},
+	}
+
+	var rows []table.Row
+	for _, host := range hosts {
+		certName := "None"
+		if host.Certificate != nil && *host.Certificate != "" {
+			certRefParts := strings.Split(*host.Certificate, "/")
+			certName = certRefParts[len(certRefParts)-1]
+		}
+
+		routeable := ""
+		if host.VerificationStatus != "completed" && !host.Disabled {
+			routeable = " (unroutable, not verified)"
+		}
+
+		state := "Enabled"
+		if host.Disabled {
+			state = "Disabled"
+		}
+
+		row := table.Row{
+			host.Host,
+			string(host.VerificationStatus),
+			certName,
+			fmt.Sprintf("%s%s", state, routeable),
+		}
+		rows = append(rows, row)
+	}
+
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(len(hosts)),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = headerStyle
+	s.Cell = cellStyle
+	t.SetStyles(s)
+
+	return t.View()
 }
 
 func RenderProviderTable(providers []openapi_chaos_client.Provider) string {
