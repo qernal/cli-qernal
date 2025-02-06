@@ -66,6 +66,7 @@ The secret value is read from stdin, allowing for secure input methods.`,
 			if err != nil {
 				return err
 			}
+			name, _ := cmd.Flags().GetString("name")
 
 			dek, err := qc.FetchDek(ctx, projectID)
 			if err != nil {
@@ -92,7 +93,7 @@ The secret value is read from stdin, allowing for secure input methods.`,
 				}
 				encryptionRef := fmt.Sprintf(`keys/dek/%d`, dek.Revision)
 				_, _, err = qc.SecretsAPI.ProjectsSecretsCreate(ctx, projectID).SecretBody(openapi_chaos_client.SecretBody{
-					Name:       strings.ToUpper(secretName),
+					Name:       strings.ToUpper(name),
 					Encryption: encryptionRef,
 					Type:       openapi_chaos_client.SECRETCREATETYPE_REGISTRY,
 					Payload: openapi_chaos_client.SecretCreatePayload{
@@ -182,14 +183,16 @@ The secret value is read from stdin, allowing for secure input methods.`,
 		},
 	}
 
-	_ = cmd.MarkFlagRequired("name")
-	_ = cmd.MarkFlagRequired("project")
 	cmd.Flags().StringVarP(&secretType, "type", "t", "", "type of secret to be created (registry, environment, certificate")
 	cmd.Flags().StringVarP(&registry, "registry-url", "r", "", "Url to private container repository (for docker registry use docker.io)")
 	cmd.Flags().StringVarP(&secretName, "name", "n", "", "name of the secret")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 	cmd.Flags().StringVarP(&publicKey, "public-key", "", "", "File path to the public key for certificate type")
 	cmd.Flags().StringVarP(&privateKey, "private-key", "", "", "File path to the private key for certificate type")
+
+	_ = cmd.MarkFlagRequired("name")
+
+	_ = cmd.MarkFlagRequired("type")
 
 	return cmd
 }

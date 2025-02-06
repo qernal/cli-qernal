@@ -57,26 +57,29 @@ func TestSceretCreate(t *testing.T) {
 		},
 
 		//TODO: Investigate why this fails
-		// {
-		// 	args:           []string{"create", "--name", secretName, "--project-id", projectID, "--type", "registry", "--registry-url", "docker.io"},
-		// 	name:           "Valid Registry Secret",
-		// 	expectedOutput: "created environment secret with name",
-		// 	expectErr:      false,
-		// },
+		{
+			args:           []string{"create", "--name", secretName, "--project-id", projectID, "--type", "registry", "--registry-url", "docker.io"},
+			name:           "Valid Registry Secret",
+			expectedOutput: "created environment secret with name",
+			expectErr:      false,
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			// Create a new input buffer for each test case
+			var inputBuf bytes.Buffer
+			inputBuf.WriteString(secretValue + "\n")
+
 			cmd := NewCreateCmd(printer)
 			rootCmd.AddCommand(cmd)
+
+			// Set the input buffer on the root command
+			rootCmd.SetIn(&inputBuf)
 
 			// randomize secret name on each run to avoid a 409
 			tc.args[2] = uuid.NewString()
 			rootCmd.SetArgs(tc.args)
-
-			var inputBuf bytes.Buffer
-			inputBuf.WriteString(secretValue + "\n")
-			cmd.SetIn(&inputBuf)
 
 			err := rootCmd.Execute()
 			if tc.expectErr {
