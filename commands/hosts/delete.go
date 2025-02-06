@@ -9,6 +9,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -18,6 +19,9 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 		Use:     "delete",
 		Aliases: []string{"rm"},
 		Example: "qernal host delete --name <host name>",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")
@@ -35,15 +39,14 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			projectName, _ := cmd.Flags().GetString("project")
 			hostName, _ := cmd.Flags().GetString("name")
 
-			project, err := qc.GetProjectByName(projectName)
+			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
-				return charm.RenderError("x", err)
+				return err
 			}
 
-			DeleteResp, httpRes, err := qc.HostsAPI.ProjectsHostsDelete(ctx, project.Id, hostName).Execute()
+			DeleteResp, httpRes, err := qc.HostsAPI.ProjectsHostsDelete(ctx, projectID, hostName).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {

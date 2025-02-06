@@ -11,6 +11,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 	"github.com/spf13/cobra"
@@ -27,7 +28,12 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 			if cert == "" && !isDisabled {
 				return printer.RenderError("", errors.New("at least one of --cert or --disable must be provided"))
 			}
+			err := helpers.ValidateProjectFlags(cmd)
+			if err != nil {
+				return err
+			}
 			return nil
+
 		},
 		Short: "update the certificate or enable/disable a qernal host",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -47,15 +53,14 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 			hostName, _ := cmd.Flags().GetString("name")
 			cert, _ := cmd.Flags().GetString("cert")
 			isEnabled, _ := cmd.Flags().GetBool("enable")
-			projectName, _ := cmd.Flags().GetString("project")
 
-			project, err := qc.GetProjectByName(projectName)
+			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
-				return printer.RenderError("❌", err)
+				return err
 			}
 
-			ref := fmt.Sprintf("projects:%s/%s", project.Id, strings.ToUpper(cert))
-			_, httpRes, err := qc.HostsAPI.ProjectsHostsUpdate(ctx, project.Id, hostName).HostBodyPatch(openapi_chaos_client.HostBodyPatch{
+			ref := fmt.Sprintf("projects:%s/%s", projectID, strings.ToUpper(cert))
+			_, httpRes, err := qc.HostsAPI.ProjectsHostsUpdate(ctx, projectID, hostName).HostBodyPatch(openapi_chaos_client.HostBodyPatch{
 				Certificate: &ref,
 				Disabled:    &isEnabled,
 			}).Execute()

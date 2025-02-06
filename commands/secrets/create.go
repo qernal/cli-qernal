@@ -11,6 +11,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 	"github.com/spf13/cobra"
@@ -28,6 +29,9 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 		Use:     "create",
 		Aliases: []string{"new"},
 		Short:   "Create a new secret",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		Long: `Create a new secret in your Qernal project.
 This command supports creating registry, environment, and certificate secrets.
 The secret value is read from stdin, allowing for secure input methods.`,
@@ -56,6 +60,11 @@ The secret value is read from stdin, allowing for secure input methods.`,
 			qc, err := client.New(ctx, nil, nil, token)
 			if err != nil {
 				return charm.RenderError("", err)
+			}
+
+			projectID, err := helpers.GetProjectID(cmd, &qc)
+			if err != nil {
+				return err
 			}
 
 			dek, err := qc.FetchDek(ctx, projectID)
@@ -177,11 +186,8 @@ The secret value is read from stdin, allowing for secure input methods.`,
 	_ = cmd.MarkFlagRequired("project")
 	cmd.Flags().StringVarP(&secretType, "type", "t", "", "type of secret to be created (registry, environment, certificate")
 	cmd.Flags().StringVarP(&registry, "registry-url", "r", "", "Url to private container repository (for docker registry use docker.io)")
-
 	cmd.Flags().StringVarP(&secretName, "name", "n", "", "name of the secret")
-	cmd.Flags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-
 	cmd.Flags().StringVarP(&publicKey, "public-key", "", "", "File path to the public key for certificate type")
 	cmd.Flags().StringVarP(&privateKey, "private-key", "", "", "File path to the private key for certificate type")
 

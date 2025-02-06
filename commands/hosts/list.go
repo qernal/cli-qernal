@@ -8,6 +8,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -18,6 +19,9 @@ func NewListCmd(printer *utils.Printer) *cobra.Command {
 		Aliases: []string{"ls", "l"},
 		Short:   "list your qernal hosts",
 		Example: "qernal host ls --project <your project name>",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			token, err := auth.GetQernalToken()
 			if err != nil {

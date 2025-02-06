@@ -9,13 +9,13 @@ import (
 
 	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEncryptCmd(t *testing.T) {
 	plaintextValue := "reallyrealvalue"
-
 	outputPrinter := utils.NewPrinter()
 
 	orgID, _, err := helpers.CreateOrg()
@@ -27,9 +27,13 @@ func TestEncryptCmd(t *testing.T) {
 		t.Fatalf("failed to create project: %v", err)
 	}
 
-	commandArgs := []string{"--project", projectID, "--output", "json"}
+	// Create root command for persistent flags
+	rootCmd := &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().String("project-id", "", "")
+	rootCmd.PersistentFlags().String("project", "", "")
 
-	// Set stdout and stdin to controlled buffers
+	commandArgs := []string{"encrypt", "--project-id", projectID, "--output", "json"}
+
 	var outputBuffer bytes.Buffer
 	var inputBuffer bytes.Buffer
 	outputPrinter.SetOut(&outputBuffer)
@@ -45,15 +49,15 @@ func TestEncryptCmd(t *testing.T) {
 	}
 
 	encryptCmd := NewEncryptCmd(outputPrinter)
-	encryptCmd.SetArgs(commandArgs)
+	rootCmd.AddCommand(encryptCmd)
+	rootCmd.SetArgs(commandArgs)
 	encryptCmd.SetIn(&inputBuffer)
 
-	err = encryptCmd.Execute()
+	err = rootCmd.Execute()
 	require.NoError(t, err)
 
 	err = json.Unmarshal(outputBuffer.Bytes(), &encryptionOutput)
 	require.NoError(t, err)
-
 	assert.Len(t, encryptionOutput.EncryptedValue, 84)
 
 	t.Cleanup(func() {
@@ -68,12 +72,10 @@ func TestEncryptCmdWithFile(t *testing.T) {
 		randomStrings[i] = utils.GenerateRandomString(60)
 	}
 	fileContent := []byte(strings.Join(randomStrings, "\n"))
-
 	err := os.WriteFile(filePath, fileContent, 0644)
 	require.NoError(t, err)
 
 	outputPrinter := utils.NewPrinter()
-
 	orgID, _, err := helpers.CreateOrg()
 	if err != nil {
 		t.Fatalf("failed to create organization: %v", err)
@@ -83,9 +85,13 @@ func TestEncryptCmdWithFile(t *testing.T) {
 		t.Fatalf("failed to create project: %v", err)
 	}
 
-	commandArgs := []string{"--project", projectID, "--output", "json"}
+	// Create root command for persistent flags
+	rootCmd := &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().String("project-id", "", "")
+	rootCmd.PersistentFlags().String("project", "", "")
 
-	// Set stdout to controlled buffer
+	commandArgs := []string{"encrypt", "--project-id", projectID, "--output", "json"}
+
 	var outputBuffer bytes.Buffer
 	outputPrinter.SetOut(&outputBuffer)
 
@@ -98,17 +104,16 @@ func TestEncryptCmdWithFile(t *testing.T) {
 	require.NoError(t, err)
 
 	encryptCmd := NewEncryptCmd(outputPrinter)
-	encryptCmd.SetArgs(commandArgs)
+	rootCmd.AddCommand(encryptCmd)
+	rootCmd.SetArgs(commandArgs)
 	encryptCmd.SetIn(bytes.NewReader(inputBuffer))
 
-	err = encryptCmd.Execute()
+	err = rootCmd.Execute()
 	require.NoError(t, err)
 
 	err = json.Unmarshal(outputBuffer.Bytes(), &encryptionOutput)
 	require.NoError(t, err)
-
 	println(len(encryptionOutput.EncryptedValue))
-
 	assert.Greater(t, len(encryptionOutput.EncryptedValue), 200)
 
 	t.Cleanup(func() {

@@ -7,6 +7,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 	"github.com/spf13/cobra"
@@ -16,7 +17,10 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get",
 		Aliases: []string{"get"},
-		Example: "qernal secrets get --name <org name>",
+		Example: "qernal secrets get --name <secret name>",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")
@@ -35,7 +39,10 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 			}
 
 			secretName, _ := cmd.Flags().GetString("name")
-			projectID, _ := cmd.Flags().GetString("project")
+			projectID, err := helpers.GetProjectID(cmd, &qc)
+			if err != nil {
+				return err
+			}
 
 			secret, err := qc.GetSecretByName(secretName, projectID)
 			if err != nil {
@@ -61,7 +68,6 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&secretName, "name", "", "name of the secret")
-	cmd.Flags().StringVar(&projectID, "project", "", "ID of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 	_ = cmd.MarkFlagRequired("name")
 	_ = cmd.MarkFlagRequired("project")
@@ -91,6 +97,5 @@ func getSecretData(secret *openapi_chaos_client.SecretMetaResponse) map[string]i
 		data["Certificate"] = secret.Payload.SecretMetaResponseCertificatePayload.Certificate
 
 	}
-
 	return data
 }

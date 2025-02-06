@@ -9,6 +9,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 	"github.com/spf13/cobra"
@@ -20,6 +21,9 @@ func NewVerifyCmd(printer *utils.Printer) *cobra.Command {
 		Aliases: []string{"verify"},
 		Short:   "schdeule a host for (re)verification",
 		Example: "qernal hosts verify example.org --project landing-page",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			token, err := auth.GetQernalToken()
 			if err != nil {
@@ -35,13 +39,13 @@ func NewVerifyCmd(printer *utils.Printer) *cobra.Command {
 			projectName, _ := cmd.Flags().GetString("project")
 			hostName, _ := cmd.Flags().GetString("name")
 
-			project, err := qc.GetProjectByName(projectName)
+			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
-				return printer.RenderError("❌", err)
+				return err
 			}
 
 			// check if host needs verification
-			host, httpRes, err := qc.HostsAPI.ProjectsHostsGet(ctx, project.Id, hostName).Execute()
+			host, httpRes, err := qc.HostsAPI.ProjectsHostsGet(ctx, projectID, hostName).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {
@@ -67,7 +71,7 @@ func NewVerifyCmd(printer *utils.Printer) *cobra.Command {
 				return printer.RenderError("", errors.New(message))
 			}
 
-			hostResp, httpRes, err := qc.HostsAPI.ProjectsHostsVerifyCreate(ctx, project.Id, hostName).Execute()
+			hostResp, httpRes, err := qc.HostsAPI.ProjectsHostsVerifyCreate(ctx, projectID, hostName).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {

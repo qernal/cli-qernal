@@ -8,12 +8,11 @@ import (
 )
 
 var (
-	hostName    string
-	projectName string
-	certRef     string
-	enabled     bool
-	publicIPV4  = "45.133.240.10"
-	publicIPV6  = "2a13:2b00:1::1"
+	hostName   string
+	certRef    string
+	enabled    bool
+	publicIPV4 = "45.133.240.10"
+	publicIPV6 = "2a13:2b00:1::1"
 )
 var HostCmd = &cobra.Command{
 	Use:     "hosts",
@@ -37,7 +36,6 @@ func init() {
 
 	HostCmd.AddCommand(NewUpdateCmd(printer))
 	HostCmd.AddCommand(NewGetCmd(printer))
-	HostCmd.PersistentFlags().StringVarP(&projectName, "project", "p", "", "project to associate this host with")
 	HostCmd.PersistentFlags().StringVarP(&hostName, "name", "n", "", "name of the host")
 	HostCmd.PersistentFlags().StringVar(&certRef, "cert", "", "name of the secret storing the TLS certificate - the secret must be of type 'certificate'")
 	HostCmd.PersistentFlags().BoolVarP(&enabled, "enable", "e", true, "hosts are routable by default, setting this to false will disable this host")

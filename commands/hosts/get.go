@@ -21,6 +21,9 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 		Aliases: []string{"get"},
 		Example: "qernal hosts get --name <host name>",
 		Short:   "Get detailed information about a specific host",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")
@@ -38,16 +41,15 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			projectName, _ := cmd.Flags().GetString("project")
 			hostName, _ := cmd.Flags().GetString("name")
 
-			project, err := qc.GetProjectByName(projectName)
+			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
-				return printer.RenderError("❌", err)
+				return err
 			}
 
 			// check if host needs verification
-			host, httpRes, err := qc.HostsAPI.ProjectsHostsGet(ctx, project.Id, hostName).Execute()
+			host, httpRes, err := qc.HostsAPI.ProjectsHostsGet(ctx, projectID, hostName).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {

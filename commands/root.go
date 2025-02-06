@@ -20,6 +20,8 @@ import (
 var (
 	version    bool
 	maxResults int32
+	projectID  string
+	project    string
 )
 var RootCmd = &cobra.Command{
 	Use:          "qernal",
@@ -48,6 +50,8 @@ func init() {
 	RootCmd.Flags().BoolVarP(&version, "version", "v", false, "Print the version of the CLI")
 	RootCmd.PersistentFlags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 	RootCmd.PersistentFlags().Int32Var(&maxResults, "max", 0, "Maximum number of results to return, defaults to all")
+	RootCmd.PersistentFlags().StringVar(&projectID, "project-id", "", "ID of the project")
+	RootCmd.PersistentFlags().StringVar(&project, "project", "", "name of the project")
 	RootCmd.AddCommand(auth.AuthCmd)
 	RootCmd.AddCommand(secrets.SecretsCmd)
 	RootCmd.AddCommand(projects.ProjectsCmd)

@@ -8,20 +8,19 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
-var (
-	projectID string
-)
-
 func NewListCmd(printer *utils.Printer) *cobra.Command {
-
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"ls"},
 		Example: "qernal func list --project <project name> ",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 
@@ -35,11 +34,11 @@ func NewListCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			project, err := qc.GetProjectByName(projectID)
+			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
-				return charm.RenderError("x", err)
+				return err
 			}
-			listResp, httpRes, err := qc.FunctionsAPI.ProjectsFunctionsList(ctx, project.Id).Execute()
+			listResp, httpRes, err := qc.FunctionsAPI.ProjectsFunctionsList(ctx, projectID).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				printer.Logger.Debug("unable to list projects, request failed", slog.String("error", err.Error()), slog.String("response", resData.(string)))
@@ -58,7 +57,6 @@ func NewListCmd(printer *utils.Printer) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVarP(&projectID, "project", "p", "", "name of the project")
-	cmd.MarkFlagRequired("project")
+
 	return cmd
 }

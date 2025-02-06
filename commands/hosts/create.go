@@ -11,6 +11,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	openapi_chaosclient "github.com/qernal/openapi-chaos-go-client"
 	"github.com/spf13/cobra"
@@ -21,6 +22,9 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 		Use:     "create",
 		Aliases: []string{"new"},
 		Example: "qernal host create --name example.org --project landing-page --cert MY-CERT-2025",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 			token, err := auth.GetQernalToken()
@@ -36,16 +40,14 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 			hostName, _ := cmd.Flags().GetString("name")
 			cert, _ := cmd.Flags().GetString("cert")
 			isDisabled, _ := cmd.Flags().GetBool("disable")
-			projectName, _ := cmd.Flags().GetString("project")
 
-			project, err := qc.GetProjectByName(projectName)
+			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
-				return printer.RenderError("❌", err)
+				return err
 			}
-
-			host, httpRes, err := qc.HostsAPI.ProjectsHostsCreate(ctx, project.Id).HostBody(openapi_chaosclient.HostBody{
+			host, httpRes, err := qc.HostsAPI.ProjectsHostsCreate(ctx, projectID).HostBody(openapi_chaosclient.HostBody{
 				Host:        hostName,
-				Certificate: fmt.Sprintf("projects:%s/%s", project.Id, strings.ToUpper(cert)),
+				Certificate: fmt.Sprintf("projects:%s/%s", projectID, strings.ToUpper(cert)),
 				Disabled:    isDisabled,
 			}).Execute()
 

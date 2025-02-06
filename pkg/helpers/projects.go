@@ -13,6 +13,7 @@ import (
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
+	"github.com/spf13/cobra"
 )
 
 // CreateProj returns the ID and name of the created project
@@ -119,4 +120,37 @@ func PaginateProjects(printer *utils.Printer, ctx context.Context, qc *client.Qe
 	}
 
 	return allProjects, nil
+}
+
+func ValidateProjectFlags(cmd *cobra.Command) error {
+	projectID, _ := cmd.Flags().GetString("project-id")
+	project, _ := cmd.Flags().GetString("project")
+
+	if projectID == "" && project == "" {
+		return errors.New("either --project-id or --project must be provided")
+	}
+
+	if projectID != "" && project != "" {
+		return errors.New("cannot specify both --project-id and --project")
+	}
+
+	return nil
+}
+
+// GetProjectID resolves a project identifier from either a project-id flag or by looking up a project name.
+// Unlike GetProjectByID which expects a direct ID, this handles both ID and name-based lookups from CLI flags.
+func GetProjectID(cmd *cobra.Command, qc *client.QernalAPIClient) (string, error) {
+	projectID, _ := cmd.Flags().GetString("project-id")
+	projectName, _ := cmd.Flags().GetString("project")
+
+	if projectID != "" {
+		return projectID, nil
+	}
+
+	project, err := qc.GetProjectByName(projectName)
+	if err != nil {
+		return "", charm.RenderError("❌", err)
+	}
+
+	return project.Id, nil
 }
