@@ -20,7 +20,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create",
 		Aliases: []string{"new"},
-		Example: "qernal host create --name evilcorp.org --project takeover --cert letsencrypt",
+		Example: "qernal host create --name example.org --project landing-page --cert MY-CERT-2025",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 			token, err := auth.GetQernalToken()
@@ -81,7 +81,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 			}
 
 			printer.PrintResource(utils.FormatOutput(data, common.OutputFormat))
-			printer.PrintResource(charm.RenderWarning("pls update your DNS with the following records\n"))
+			printer.PrintResource(charm.RenderWarning("Please add the TXT record for host verification, then update your A and AAAA records\nwhen verification is complete. The host will not be routable until the verification has completed.\n"))
 			fmt.Println(charm.RenderDNSTable(dnsRecords))
 			return nil
 		},

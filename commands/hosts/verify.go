@@ -18,8 +18,8 @@ func NewVerifyCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "verify",
 		Aliases: []string{"verify"},
-		Short:   "schdeule a qernal host for verification",
-		Example: "qernal hosts verify dns.org --project {proj_name}",
+		Short:   "schdeule a host for (re)verification",
+		Example: "qernal hosts verify example.org --project landing-page",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			token, err := auth.GetQernalToken()
 			if err != nil {
@@ -89,7 +89,7 @@ func NewVerifyCmd(printer *utils.Printer) *cobra.Command {
 				data = map[string]interface{}{
 					"message": "Host verification scheduled successfully",
 					"details": fmt.Sprintf("Verifying host '%s' in project '%s'", hostName, projectName),
-					"note":    "DNS changes may take up to 48 hours to propagate. Use 'qernal hosts list' to check verification status.",
+					"note":    "DNS propagation times are dependent upon your provider. Use 'qernal hosts list' to check verification status.",
 				}
 			}
 			printer.PrintResource(utils.FormatOutput(data, common.OutputFormat))

@@ -20,7 +20,7 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update",
 		Aliases: []string{"edit"},
-		Example: "qernal host update --cert letsencrypt --disabled",
+		Example: "qernal host update --cert MY-CERT-2025 --disabled",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			cert, _ := cmd.Flags().GetString("cert")
 			isDisabled, _ := cmd.Flags().GetBool("disable")
