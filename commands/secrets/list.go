@@ -19,6 +19,9 @@ func NewSecretsListCmd(printer *utils.Printer) *cobra.Command {
 		Aliases: []string{"ls", "l"},
 		Short:   "list your qernal project secrets",
 		Example: "qernal secrets list",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			token, err := auth.GetQernalToken()
 			if err != nil {
@@ -30,8 +33,10 @@ func NewSecretsListCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("", err)
 			}
 			maxResults, _ := cmd.Flags().GetInt32("max")
-			projectID, _ := cmd.Flags().GetString("project")
-
+			projectID, err := helpers.GetProjectID(cmd, &qc)
+			if err != nil {
+				return err
+			}
 			secrets, err := helpers.PaginateSecrets(printer, ctx, &qc, maxResults, projectID)
 			if err != nil {
 				return charm.RenderError("unable to list organisations", err)
