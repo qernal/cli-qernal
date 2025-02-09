@@ -6,39 +6,38 @@ import (
 	"testing"
 
 	"github.com/qernal/cli-qernal/pkg/utils"
+	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestListOrg(t *testing.T) {
-
-	//set stdout to a buffer we control
 	var buf bytes.Buffer
 	printer := utils.NewPrinter()
 	printer.SetOut(&buf)
 
-	var expectedJson []struct {
-		Date struct {
-			CreatedAt string `json:"created_at"`
-			UpdatedAt string `json:"updated_at"`
-		} `json:"date"`
-		ID     string `json:"id"`
-		Name   string `json:"name"`
-		UserID string `json:"user_id"`
-	}
-	cmd := NewOrgListCmd(printer)
-	cmd.SetArgs([]string{"-o", "json"})
+	// Create root command for persistent flags
+	rootCmd := &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().String("organisation", "", "")
 
-	err := cmd.Execute()
+	var expectedJson []openapi_chaos_client.OrganisationResponse
+
+	cmd := NewOrgListCmd(printer)
+	rootCmd.AddCommand(cmd)
+
+	// Add "list" as first argument since we're using root command
+	rootCmd.SetArgs([]string{"list", "-o", "json"})
+
+	err := rootCmd.Execute()
 	if err != nil {
 		t.Fatalf("unable to execute command %v", err)
 	}
+
 	err = json.Unmarshal(buf.Bytes(), &expectedJson)
 	if err != nil {
 		t.Fatalf("json result is not in expected format %v", err)
-
 	}
 
 	assert.NoError(t, err)
-
 	assert.True(t, len(expectedJson) > 0)
 }

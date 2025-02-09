@@ -39,7 +39,7 @@ func NewSecretsListCmd(printer *utils.Printer) *cobra.Command {
 			}
 			secrets, err := helpers.PaginateSecrets(printer, ctx, &qc, maxResults, projectID)
 			if err != nil {
-				return charm.RenderError("unable to list organisations", err)
+				return charm.RenderError("unable to list secrets", err)
 			}
 			if maxResults > 0 && len(secrets) > int(maxResults) {
 				secrets = secrets[:maxResults]

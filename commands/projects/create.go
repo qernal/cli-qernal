@@ -13,7 +13,6 @@ import (
 )
 
 var (
-	orgID       string
 	projectName string
 )
 
@@ -22,7 +21,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create",
 		Aliases: []string{"new"},
-		Example: "qernal project create --name <project_name> --ogranisation <org ID> ",
+		Example: "qernal project create --name <project_name> --ogranisation-id <org ID> ",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 			token, err := auth.GetQernalToken()
@@ -35,6 +34,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("", err)
 			}
 
+			orgID, _ := cmd.Flags().GetString("organisation-id")
 			project, _, err := qc.ProjectsAPI.ProjectsCreate(ctx).ProjectBody(openapi_chaos_client.ProjectBody{
 				OrgId: orgID,
 				Name:  projectName,
@@ -62,10 +62,9 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVarP(&orgID, "organisation", "", "", "Organisation the project should be created under")
 	cmd.Flags().StringVarP(&projectName, "name", "n", "", "Name of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-	_ = cmd.MarkFlagRequired("organisation")
+	_ = cmd.MarkFlagRequired("organisation-id")
 	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }

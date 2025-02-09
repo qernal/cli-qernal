@@ -8,6 +8,7 @@ import (
 	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,23 +22,29 @@ func TestGetOrg(t *testing.T) {
 	printer := utils.NewPrinter()
 	printer.SetOut(&buf)
 
+	// Create root command for persistent flags
+	rootCmd := &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().String("organisation", "", "")
+
 	cmd := NewGetCmd(printer)
-	args := []string{"-o", "json", "--name", name}
-	cmd.SetArgs(args)
+	rootCmd.AddCommand(cmd)
+
+	// Add "get" as first argument since we're using root command
+	rootCmd.SetArgs([]string{"get", "-o", "json", "--organisation", name})
 
 	var response openapi_chaos_client.OrganisationResponse
-
-	err = cmd.Execute()
+	err = rootCmd.Execute()
 	if err != nil {
 		t.Fatalf("unable to execute command: %v", err)
 	}
+
 	// check if json is as expected
 	err = json.Unmarshal(buf.Bytes(), &response)
 	if err != nil {
 		t.Fatalf("json result is not in expected format %v", err)
 	}
-	assert.NoError(t, err)
 
+	assert.NoError(t, err)
 	assert.Equal(t, ID, response.Id)
 
 	t.Cleanup(func() {

@@ -35,7 +35,7 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			orgName, _ := cmd.Flags().GetString("name")
+			orgName, _ := cmd.Flags().GetString("organisation")
 
 			org, err := qc.GetOrgByName(orgName)
 			if err != nil {
@@ -69,7 +69,6 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 
 		},
 	}
-	cmd.Flags().StringVar(&orgName, "name", "", "name of the organisation")
-	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("orgnaisation")
 	return cmd
 }

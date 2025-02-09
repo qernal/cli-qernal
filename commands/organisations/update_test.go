@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,20 +16,25 @@ func TestOrgUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create org: %v", err)
 	}
+
 	orgName := uuid.NewString()
 
-	//set stdout to a buffer we control
 	var buf bytes.Buffer
 	printer := utils.NewPrinter()
 	printer.SetOut(&buf)
 
-	updatecmd := NewUpdateCmd(printer)
+	// Create root command for persistent flags
+	rootCmd := &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().String("organisation-id", "", "")
+	rootCmd.PersistentFlags().String("organisation", "", "")
 
-	updateArgs := []string{"--id", orgID, "--name", orgName}
+	updateCmd := NewUpdateCmd(printer)
+	rootCmd.AddCommand(updateCmd)
 
-	updatecmd.SetArgs(updateArgs)
+	// Add "update" as first argument since we're using root command
+	rootCmd.SetArgs([]string{"update", "--organisation-id", orgID, "--organisation", orgName})
 
-	err = updatecmd.Execute()
+	err = rootCmd.Execute()
 	if err != nil {
 		t.Fatalf("unable to update to project, command failed with %v", err)
 	}
@@ -38,5 +44,4 @@ func TestOrgUpdate(t *testing.T) {
 	t.Cleanup(func() {
 		helpers.DeleteOrg(orgID)
 	})
-
 }

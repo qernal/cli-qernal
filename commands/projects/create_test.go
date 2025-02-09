@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,9 +18,9 @@ func TestProjectCreate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create org: %v", err)
 	}
+
 	projectname := uuid.NewString()
 
-	//set stdout to a buffer we control
 	var buf bytes.Buffer
 	printer := utils.NewPrinter()
 	printer.SetOut(&buf)
@@ -30,6 +31,12 @@ func TestProjectCreate(t *testing.T) {
 		ProjectID      string `json:"project_id"`
 	}
 
+	// Create root command for persistent flags
+	rootCmd := &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().String("project-id", "", "")
+	rootCmd.PersistentFlags().String("project", "", "")
+	rootCmd.PersistentFlags().String("organisation-id", "", "")
+
 	testCases := []struct {
 		name           string
 		args           []string
@@ -38,16 +45,19 @@ func TestProjectCreate(t *testing.T) {
 	}{
 		{
 			name:           "Valid Project",
-			args:           []string{"create", "--name", projectname, "--organisation", orgID, "--output", "json"},
+			args:           []string{"create", "--name", projectname, "--organisation-id", orgID, "--output", "json"},
 			expectedOutput: "project_id",
 			expectErr:      false,
 		},
 	}
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			cmd := NewCreateCmd(printer)
-			cmd.SetArgs(tc.args)
-			err := cmd.Execute()
+			rootCmd.AddCommand(cmd)
+			rootCmd.SetArgs(tc.args)
+
+			err := rootCmd.Execute()
 			if tc.expectErr {
 				require.Error(t, err)
 			} else {
@@ -58,6 +68,7 @@ func TestProjectCreate(t *testing.T) {
 			}
 		})
 	}
+
 	t.Cleanup(func() {
 		helpers.DeleteOrg(expectedJson.OrganisationID)
 	})

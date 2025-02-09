@@ -32,6 +32,8 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 			if err != nil {
 				return printer.RenderError("error creating qernal client", err)
 			}
+			orgName, _ := cmd.Flags().GetString("organisation")
+			orgID, _ := cmd.Flags().GetString("organisation-id")
 
 			patchResp, httpRes, err := qc.OrganisationsAPI.OrganisationsUpdate(ctx, orgID).OrganisationBody(openapi_chaos_client.OrganisationBody{
 				Name: orgName,
@@ -60,12 +62,9 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 
 		},
 	}
-
-	cmd.Flags().StringVar(&orgID, "id", "", "Organisation ID")
-	cmd.Flags().StringVarP(&orgName, "name", "n", "", "name of the organisation to be updated")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-	_ = cmd.MarkFlagRequired("id")
-	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("organisation")
+	_ = cmd.MarkFlagRequired("organisation-id")
 	return cmd
 
 }

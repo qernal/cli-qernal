@@ -15,7 +15,7 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get",
 		Aliases: []string{"get"},
-		Example: "qernal project get --name <org name>",
+		Example: "qernal project get --name <project name>",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")

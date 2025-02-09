@@ -22,6 +22,8 @@ var (
 	maxResults int32
 	projectID  string
 	project    string
+	orgID      string
+	orgName    string
 )
 var RootCmd = &cobra.Command{
 	Use:          "qernal",
@@ -52,6 +54,8 @@ func init() {
 	RootCmd.PersistentFlags().Int32Var(&maxResults, "max", 0, "Maximum number of results to return, defaults to all")
 	RootCmd.PersistentFlags().StringVar(&projectID, "project-id", "", "ID of the project")
 	RootCmd.PersistentFlags().StringVar(&project, "project", "", "name of the project")
+	RootCmd.PersistentFlags().StringVar(&orgID, "organisation-id", "", "Organisation ID")
+	RootCmd.PersistentFlags().StringVar(&orgName, "organisation", "", "name of the organisation")
 	RootCmd.AddCommand(auth.AuthCmd)
 	RootCmd.AddCommand(secrets.SecretsCmd)
 	RootCmd.AddCommand(projects.ProjectsCmd)
