@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/qernal/openapi-chaos-go-client v0.0.0-20241201024103-fd51fb986a40
+	github.com/qernal/openapi-chaos-go-client v0.0.0-20250206172431-b611ee1ad22a
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4

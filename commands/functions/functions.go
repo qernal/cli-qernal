@@ -8,7 +8,10 @@ import (
 
 var (
 	functionFile string
+	functionID   string
+	watch        bool
 )
+
 var FunctionCmd = &cobra.Command{
 	Use:     "functions",
 	Short:   "Manage your projects",
@@ -26,5 +29,5 @@ func init() {
 	printer := utils.NewPrinter()
 	FunctionCmd.AddCommand(NewListCmd(printer))
 	FunctionCmd.AddCommand(NewCreateCmd(printer))
-
+	FunctionCmd.AddCommand(NewLogsCmd(printer))
 }
