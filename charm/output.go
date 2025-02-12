@@ -194,16 +194,17 @@ func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("#FAFAFA")).
-		Padding(0, 2)
+		Padding(0, 1)
 
 	cellStyle := lipgloss.NewStyle().
-		Padding(0, 2)
+		Padding(0, 1)
 
 	columns := []table.Column{
 		{Title: "Name", Width: 17},
 		{Title: "Image", Width: 18},
 		{Title: "Description", Width: 17},
 		{Title: "Secrets", Width: 15},
+		{Title: "ID", Width: 45},
 	}
 
 	var rows []table.Row
@@ -214,6 +215,7 @@ func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 			function.Image,
 			function.Description,
 			secrets,
+			function.Id,
 		}
 		rows = append(rows, row)
 	}
