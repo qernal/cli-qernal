@@ -30,4 +30,5 @@ func init() {
 	FunctionCmd.AddCommand(NewListCmd(printer))
 	FunctionCmd.AddCommand(NewCreateCmd(printer))
 	FunctionCmd.AddCommand(NewLogsCmd(printer))
+	FunctionCmd.AddCommand(NewMetricsCmd(printer))
 }
