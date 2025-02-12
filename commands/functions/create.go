@@ -9,10 +9,9 @@ import (
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
-	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func NewCreateCmd(printer *utils.Printer) *cobra.Command {
@@ -33,21 +32,15 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			filePath, _ := cmd.Flags().GetString("file")
+			file, _ := cmd.Flags().GetString("file")
 
-			viper.SetConfigFile(filePath)
-			viper.SetConfigType("yaml")
-
-			if err := viper.ReadInConfig(); err != nil {
-				return fmt.Errorf("error reading function file: %w", err)
+			function, err := helpers.ParseFunctionConfig(file)
+			if err != nil {
+				return charm.RenderError("unable to parse function config", err)
 			}
 
-			var function openapi_chaos_client.FunctionBody
-			if err := viper.Unmarshal(&function); err != nil {
-				return fmt.Errorf("error parsing function definition: %w", err)
-			}
-
-			qFunc, httpRes, err := qc.FunctionsAPI.FunctionsCreate(ctx).FunctionBody(function).Execute()
+			//TODO: Batch create functions
+			qFunc, httpRes, err := qc.FunctionsAPI.FunctionsCreate(ctx).FunctionBody(*function).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {
@@ -62,9 +55,9 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 					slog.String("error", err.Error()),
 					slog.Any("response", resData))
 
-				return printer.RenderError("unable to create organisation", err)
+				return printer.RenderError("unable to create function", err)
 			}
-			printer.PrintResource(charm.SuccessStyle.Render(qFunc.Name))
+			printer.PrintResource(charm.SuccessStyle.Render(fmt.Sprintf("create function with name %s\nrun qernal function ls --project-id=%s to view all functions", qFunc.Name, qFunc.ProjectId)))
 
 			return nil
 		},

@@ -9,6 +9,7 @@ import (
 var (
 	functionFile string
 	functionID   string
+	functionName string
 	watch        bool
 )
 
@@ -30,5 +31,7 @@ func init() {
 	FunctionCmd.AddCommand(NewListCmd(printer))
 	FunctionCmd.AddCommand(NewCreateCmd(printer))
 	FunctionCmd.AddCommand(NewLogsCmd(printer))
+	FunctionCmd.AddCommand(NewGetCmd(printer))
+	FunctionCmd.AddCommand(NewDeleteCmd(printer))
 	FunctionCmd.AddCommand(NewMetricsCmd(printer))
 }

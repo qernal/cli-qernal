@@ -2,7 +2,6 @@ package functions
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
@@ -38,20 +37,22 @@ func NewListCmd(printer *utils.Printer) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			listResp, httpRes, err := qc.FunctionsAPI.ProjectsFunctionsList(ctx, projectID).Execute()
-			if err != nil {
-				resData, _ := client.ParseResponseData(httpRes)
-				printer.Logger.Debug("unable to list projects, request failed", slog.String("error", err.Error()), slog.String("response", resData.(string)))
-				return charm.RenderError("unable to list projects,  request failed with:", err)
+			maxResults, _ := cmd.Flags().GetInt32("max")
 
+			functions, err := helpers.PaginateFunctions(printer, ctx, &qc, maxResults, projectID)
+			if err != nil {
+				return charm.RenderError("unable to list organisations", err)
+			}
+			if maxResults > 0 && len(functions) > int(maxResults) {
+				functions = functions[:maxResults]
 			}
 
 			if common.OutputFormat == "json" {
-				printer.PrintResource(utils.FormatOutput(listResp.Data, common.OutputFormat))
+				printer.PrintResource(utils.FormatOutput(functions, common.OutputFormat))
 				return nil
 			}
 
-			table := charm.RenderFuncTable(listResp.Data)
+			table := charm.RenderFuncTable(functions)
 			printer.PrintResource(table)
 
 			return nil
