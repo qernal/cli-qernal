@@ -44,6 +44,7 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 					if innerData, ok := data["data"].(map[string]interface{}); ok {
 						return charm.RenderError("unable to delete host: ", errors.New(innerData["name"].(string)))
 					}
+			if file != "" {
 				}
 				printer.Logger.Debug("unable to delete host, request failed",
 					slog.String("error", err.Error()),
