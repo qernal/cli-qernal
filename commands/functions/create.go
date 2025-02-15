@@ -34,30 +34,32 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 
 			file, _ := cmd.Flags().GetString("file")
 
-			function, err := helpers.ParseFunctionConfig(file)
+			qFunctions, err := helpers.ParseFunctionConfig(file, printer)
 			if err != nil {
 				return charm.RenderError("unable to parse function config", err)
 			}
 
 			//TODO: Batch create functions
-			qFunc, httpRes, err := qc.FunctionsAPI.FunctionsCreate(ctx).FunctionBody(*function).Execute()
-			if err != nil {
-				resData, _ := client.ParseResponseData(httpRes)
-				if data, ok := resData.(map[string]interface{}); ok {
-					if innerData, ok := data["data"].(map[string]interface{}); ok {
-						if nameErr, ok := innerData["name"].(string); ok {
-							err = errors.New(nameErr)
+			for _, function := range qFunctions {
+				qFunc, httpRes, err := qc.FunctionsAPI.FunctionsCreate(ctx).FunctionBody(function).Execute()
+				if err != nil {
+					resData, _ := client.ParseResponseData(httpRes)
+					if data, ok := resData.(map[string]interface{}); ok {
+						if innerData, ok := data["data"].(map[string]interface{}); ok {
+							if nameErr, ok := innerData["name"].(string); ok {
+								err = errors.New(nameErr)
+							}
 						}
 					}
+					printer.Logger.Debug("unable to create function, request failed",
+						slog.String("error", err.Error()),
+						slog.Any("response", resData))
+					return printer.RenderError(fmt.Sprintf("unable to create function with name %s. Request failed with", qFunc.Name), err)
 				}
-
-				printer.Logger.Debug("unable to create function, request failed",
-					slog.String("error", err.Error()),
-					slog.Any("response", resData))
-
-				return printer.RenderError("unable to create function", err)
+				printer.PrintResource(charm.SuccessStyle.Render(fmt.Sprintf("created function %s", function.Name)))
 			}
-			printer.PrintResource(charm.SuccessStyle.Render(fmt.Sprintf("create function with name %s\nrun qernal function ls --project-id=%s to view all functions", qFunc.Name, qFunc.ProjectId)))
+
+			printer.PrintResource(charm.SuccessStyle.Render("Success.\nrun qernal function ls --project-id=<project-id> to view all functions"))
 
 			return nil
 		},

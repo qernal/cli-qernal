@@ -42,11 +42,11 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 				if data, ok := resData.(map[string]interface{}); ok {
 					if innerData, ok := data["data"].(map[string]interface{}); ok {
 						if nameErr, ok := innerData["name"].(string); ok {
-							return printer.RenderError("unable to find host", errors.New(nameErr))
+							return printer.RenderError("unable to find function", errors.New(nameErr))
 						}
 					}
 				}
-				return charm.RenderError("unable to find host", err)
+				return charm.RenderError("unable to find function", err)
 			}
 
 			var data interface{}

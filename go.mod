@@ -18,12 +18,20 @@ require (
 	golang.org/x/crypto v0.16.0
 	golang.org/x/oauth2 v0.15.0
 	gopkg.in/yaml.v2 v2.4.0
+	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
 	github.com/charmbracelet/x/ansi v0.4.5 // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
+	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/gdamore/tcell v1.3.0 // indirect
+	github.com/jroimartin/gocui v0.4.0 // indirect
 	github.com/lrstanley/bubblezone v0.0.0-20240914071701-b48c55a5e78e // indirect
+	github.com/nsf/termbox-go v0.0.0-20190817171036-93860e161317 // indirect
+	github.com/rivo/tview v0.0.0-20191121195645-2d957c4be01d // indirect
+	github.com/shilangyu/gocui-widgets v1.3.1 // indirect
+	github.com/shilangyu/typer-go v0.1.4 // indirect
 )
 
 require (

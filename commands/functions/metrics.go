@@ -2,7 +2,9 @@ package functions
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/NimbleMarkets/ntcharts/linechart/timeserieslinechart"
@@ -48,7 +50,7 @@ func NewMetricsCmd(printer *utils.Printer) *cobra.Command {
 			pastTime := time.Now().Add(-15 * time.Minute).Format(time.RFC3339)
 
 			// show http requests
-			httpResp, _, err := qc.MetricsAPI.MetricsAggregationsList(context.Background(), "httprequests").
+			metricResp, httpRes, err := qc.MetricsAPI.MetricsAggregationsList(context.Background(), "httprequests").
 				FProject(projectID).
 				FFunction(functionID).
 				FHistogramInterval(60).
@@ -57,16 +59,33 @@ func NewMetricsCmd(printer *utils.Printer) *cobra.Command {
 					Before: &currentTime,
 				}).
 				Execute()
+			if err != nil {
+				resData, _ := client.ParseResponseData(httpRes)
+				if data, ok := resData.(map[string]interface{}); ok {
+					if innerData, ok := data["data"].(map[string]interface{}); ok {
+						if nameErr, ok := innerData["name"].(string); ok {
 
-			fmt.Println("HTTP Requests")
+							return printer.RenderError("unable to find function", errors.New(nameErr))
+						}
+					}
+				}
+				printer.Logger.Debug("Metrics collection failed ",
+					slog.String("error", err.Error()),
+					slog.Any("response", httpRes))
+				return charm.RenderError("unable to find function", err)
+			}
 
-			for _, r := range httpResp.MetricHttpAggregation.HttpCodes.Buckets {
+			if len(metricResp.MetricHttpAggregation.HttpCodes.Buckets) <= 0 {
+				return errors.New(charm.RenderWarning("Function metrics are currently unavailable, make a few requests and try again"))
+			}
+
+			for _, r := range metricResp.MetricHttpAggregation.HttpCodes.Buckets {
 				fmt.Println(*r.Key)
 				HTTPGraph(*r.Histogram)
 			}
 
 			// show resource stats
-			metricResp, _, err := qc.MetricsAPI.MetricsAggregationsList(context.Background(), "resourcestats").
+			metricResp, httpRes, err = qc.MetricsAPI.MetricsAggregationsList(context.Background(), "resourcestats").
 				FProject(projectID).
 				FFunction(functionID).
 				FHistogramInterval(60).
@@ -75,6 +94,23 @@ func NewMetricsCmd(printer *utils.Printer) *cobra.Command {
 					Before: &currentTime,
 				}).
 				Execute()
+			if err != nil {
+				resData, _ := client.ParseResponseData(httpRes)
+				if data, ok := resData.(map[string]interface{}); ok {
+					if innerData, ok := data["data"].(map[string]interface{}); ok {
+						if nameErr, ok := innerData["name"].(string); ok {
+							printer.Logger.Debug("MEtrics collection failed ",
+								slog.String("error", err.Error()),
+								slog.Any("response", nameErr))
+							return printer.RenderError("unable to find function", errors.New(nameErr))
+						}
+					}
+				}
+				printer.Logger.Debug("MEtrics collection failed ",
+					slog.String("error", err.Error()),
+					slog.Any("response", httpRes))
+				return charm.RenderError("unable to find function", err)
+			}
 
 			// TODO: format header
 			fmt.Println("Resource Stats")

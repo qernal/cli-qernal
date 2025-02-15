@@ -34,14 +34,12 @@ func NewListCmd(printer *utils.Printer) *cobra.Command {
 
 			}
 
-			projectName, _ := cmd.Flags().GetString("project")
-
-			project, err := qc.GetProjectByName(projectName)
+			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
-				return printer.RenderError("❌", err)
+				return err
 			}
 
-			hostResp, httpRes, err := qc.HostsAPI.ProjectsHostsList(ctx, project.Id).Execute()
+			hostResp, httpRes, err := qc.HostsAPI.ProjectsHostsList(ctx, projectID).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {

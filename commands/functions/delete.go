@@ -3,6 +3,7 @@ package functions
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/qernal/cli-qernal/charm"
