@@ -68,9 +68,6 @@ universal_binaries:
 brews:
   -
     name: qernal
-    ids:
-      - qernal
-
     url_template: "https://github.com/qernal/homebrew-qernal/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
     repository:
