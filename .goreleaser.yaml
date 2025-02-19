@@ -70,5 +70,5 @@ brews:
     email: "{{ .Env.GIT_AUTHOR_EMAIL }}"
 
   checksum:
-    name_template: "checksum.txt"
+    name_template: 'checksum.txt'
  
