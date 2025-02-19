@@ -65,7 +65,8 @@ universal_binaries:
   - replace: true
 
 brews:
-  - tap:
+  -
+    tap:
       owner: qernal
       name: homebrew-qernal
     commit_author:
