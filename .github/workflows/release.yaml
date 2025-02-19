@@ -11,6 +11,10 @@ permissions:
   contents: write
   packages: write
 
+env:
+  GIT_AUTHOR_NAME: ${{ github.actor }}
+  GIT_AUTHOR_EMAIL: "${{ github.actor }}@users.noreply.github.com"
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
@@ -39,7 +43,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: "~> v2"
+          version: ${{ env.GITHUB_REF_NAME}}
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

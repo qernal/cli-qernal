@@ -1,9 +1,9 @@
 # .goreleaser.yaml
 version: 2
-project_name: qernal-cli
+project_name: qernal
 
 builds:
-  - id: "cli"
+  - id: "qenal"
     main: ./cmd/main.go
     binary: qernal
     goos:
@@ -17,7 +17,7 @@ builds:
     ignore:
       - goos: darwin
         goarch: '386'
-  - id: "macos-cli"
+  - id: "qernal
     main: ./cmd/main.go
     binary: qernal
     goos:
@@ -57,3 +57,18 @@ notarize:
         key: "{{.Env.MACOS_NOTARY_KEY}}"
         wait: true
         timeout: 50m
+universal_binaries:
+  - replace: true 
+
+brews: 
+  tap:
+    owner: qernal
+    name: homebrew-qernal 
+
+  commit_author: 
+    name: "{{ .Env.GIT_AUTHOR_NAME }}"
+    email: "{{ .Env.GIT_AUTHOR_EMAIL }}"
+
+  checksum:
+    name_template: "checksum.txt"
+ 
