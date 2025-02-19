@@ -64,11 +64,22 @@ notarize:
 universal_binaries:
   - replace: true
 
+
 brews:
   -
-    tap:
+    name: qernal
+    ids:
+      - qernal
+
+    url_template: "https://github.com/qernal/homebrew-qernal/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+    repository:
       owner: qernal
       name: homebrew-qernal
+      branch: main
+
     commit_author:
       name: "{{ .Env.GIT_AUTHOR_NAME }}"
       email: "{{ .Env.GIT_AUTHOR_EMAIL }}"
+
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
