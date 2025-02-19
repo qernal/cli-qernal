@@ -17,7 +17,7 @@ builds:
     ignore:
       - goos: darwin
         goarch: "386"
-  - id: "qernal"
+  - id: "qernal-darwin"
     main: ./cmd/main.go
     binary: qernal
     goos:
@@ -68,6 +68,9 @@ universal_binaries:
 brews:
   -
     name: qernal
+    ids:
+      - brew-qernal
+
     url_template: "https://github.com/qernal/homebrew-qernal/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
     repository:
