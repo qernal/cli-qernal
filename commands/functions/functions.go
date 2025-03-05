@@ -30,6 +30,7 @@ func init() {
 	printer := utils.NewPrinter()
 	FunctionCmd.AddCommand(NewListCmd(printer))
 	FunctionCmd.AddCommand(NewCreateCmd(printer))
+	FunctionCmd.AddCommand(NewUpdateCmd(printer))
 	FunctionCmd.AddCommand(NewLogsCmd(printer))
 	FunctionCmd.AddCommand(NewGetCmd(printer))
 	FunctionCmd.AddCommand(NewDeleteCmd(printer))

@@ -39,7 +39,6 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("unable to parse function config", err)
 			}
 
-			//TODO: Batch create functions
 			for _, function := range qFunctions {
 				qFunc, httpRes, err := qc.FunctionsAPI.FunctionsCreate(ctx).FunctionBody(function).Execute()
 				if err != nil {
