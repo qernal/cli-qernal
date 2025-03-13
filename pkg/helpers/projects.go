@@ -61,7 +61,6 @@ func DeleteProj(projid string) {
 }
 
 func PaginateProjects(printer *utils.Printer, ctx context.Context, qc *client.QernalAPIClient, maxResults int32) ([]openapi_chaos_client.ProjectResponse, error) {
-
 	initialResp, httpRes, err := qc.ProjectsAPI.ProjectsList(ctx).Execute()
 	if err != nil {
 		resData, _ := client.ParseResponseData(httpRes)
@@ -81,15 +80,14 @@ func PaginateProjects(printer *utils.Printer, ctx context.Context, qc *client.Qe
 	if initialResp.Meta.Results <= 20 {
 		return allProjects, nil
 	}
-
 	pageSize := int32(20)
-	var currentPage int32
+	currentPage := int32(1) // Start from page 1, since we've already fetched page 0
+
 	for currentPage < initialResp.Meta.Pages {
 		if maxResults > 0 && len(allProjects) >= int(maxResults) {
 			break
 		}
 
-		currentPage++
 		previous := currentPage - 1
 		next, httpRes, err := qc.ProjectsAPI.ProjectsList(ctx).
 			Page(openapi_chaos_client.OrganisationsListPageParameter{
@@ -111,14 +109,12 @@ func PaginateProjects(printer *utils.Printer, ctx context.Context, qc *client.Qe
 				slog.Any("response", resData))
 			return nil, printer.RenderError("unable to list projects", err)
 		}
-
 		allProjects = append(allProjects, next.GetData()...)
+		currentPage++ // Move increment to after the request
 	}
-
 	if maxResults > 0 && len(allProjects) > int(maxResults) {
 		allProjects = allProjects[:maxResults]
 	}
-
 	return allProjects, nil
 }
 

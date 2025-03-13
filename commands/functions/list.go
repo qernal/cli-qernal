@@ -2,7 +2,6 @@ package functions
 
 import (
 	"context"
-	"errors"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
@@ -43,11 +42,6 @@ func NewListCmd(printer *utils.Printer) *cobra.Command {
 			functions, err := helpers.PaginateFunctions(printer, ctx, &qc, maxResults, projectID)
 			if err != nil {
 				return charm.RenderError("unable to list function", err)
-			}
-
-			// result could be empty
-			if len(functions) <= 0 {
-				return errors.New(charm.RenderWarning("no functions associated with this project"))
 			}
 
 			if maxResults > 0 && len(functions) > int(maxResults) {
