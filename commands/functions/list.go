@@ -44,10 +44,6 @@ func NewListCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("unable to list function", err)
 			}
 
-			if maxResults > 0 && len(functions) > int(maxResults) {
-				functions = functions[:maxResults]
-			}
-
 			if common.OutputFormat == "json" {
 				printer.PrintResource(utils.FormatOutput(functions, common.OutputFormat))
 				return nil

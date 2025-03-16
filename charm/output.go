@@ -52,7 +52,7 @@ func RenderProjectTable(projects []openapi_chaos_client.ProjectResponse) string 
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(len(projects)),
+		table.WithHeight(len(projects)+3),
 	)
 
 	s := table.DefaultStyles()
@@ -102,7 +102,7 @@ func RenderOrgTable(orgs []openapi_chaos_client.OrganisationResponse) string {
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(len(orgs)),
+		table.WithHeight(len(orgs)+3),
 	)
 
 	s := table.DefaultStyles()
@@ -179,7 +179,7 @@ func RenderSecretsTable(secrets []openapi_chaos_client.SecretMetaResponse) strin
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(len(secrets)),
+		table.WithHeight(len(secrets)+3),
 	)
 
 	s := table.DefaultStyles()
@@ -224,7 +224,7 @@ func RenderFuncTable(functions []openapi_chaos_client.Function) string {
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(len(functions)),
+		table.WithHeight(len(functions)+1),
 	)
 
 	s := table.DefaultStyles()
@@ -261,7 +261,7 @@ func RenderDNSTable(records map[string]string) string {
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(len(records)),
+		table.WithHeight(len(records)+2),
 	)
 
 	s := table.DefaultStyles()
@@ -318,7 +318,7 @@ func RenderHostTable(hosts []openapi_chaos_client.Host) string {
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(len(hosts)),
+		table.WithHeight(len(hosts)+1),
 	)
 
 	s := table.DefaultStyles()
@@ -360,7 +360,7 @@ func RenderProviderTable(providers []openapi_chaos_client.Provider) string {
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(len(providers)),
+		table.WithHeight(len(providers)+1),
 	)
 
 	s := table.DefaultStyles()
