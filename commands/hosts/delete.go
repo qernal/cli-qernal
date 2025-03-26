@@ -1,4 +1,4 @@
-package org
+package hosts
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -17,7 +18,10 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete",
 		Aliases: []string{"rm"},
-		Example: "qernal organisation delete --name <org name>",
+		Example: "qernal host delete --name <host name>",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")
@@ -35,25 +39,25 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			orgName, _ := cmd.Flags().GetString("organisation")
+			hostName, _ := cmd.Flags().GetString("name")
 
-			org, err := qc.GetOrgByName(orgName)
+			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
-				return charm.RenderError("x", err)
+				return err
 			}
 
-			DeleteResp, httpRes, err := qc.OrganisationsAPI.OrganisationsDelete(ctx, org.Id).Execute()
+			DeleteResp, httpRes, err := qc.HostsAPI.ProjectsHostsDelete(ctx, projectID, hostName).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {
 					if innerData, ok := data["data"].(map[string]interface{}); ok {
-						return charm.RenderError("unable to delete organisation: ", errors.New(innerData["name"].(string)))
+						return charm.RenderError("unable to delete host: ", errors.New(innerData["name"].(string)))
 					}
 				}
-				printer.Logger.Debug("unable to delete org, request failed",
+				printer.Logger.Debug("unable to delete host, request failed",
 					slog.String("error", err.Error()),
 					slog.Any("response", resData))
-				return charm.RenderError("unable to delete organisation", err)
+				return charm.RenderError("unable to delete host", err)
 			}
 
 			var data interface{}
@@ -61,7 +65,7 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 				data = DeleteResp
 			} else {
 				data = map[string]interface{}{
-					"sucessfully deleted organisation with name:": org.Name,
+					"sucessfully deleted host with name": hostName,
 				}
 			}
 			printer.PrintResource(charm.RenderWarning(utils.FormatOutput(data, common.OutputFormat)))
@@ -69,6 +73,8 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 
 		},
 	}
-	_ = cmd.MarkFlagRequired("orgnaisation")
+	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("project")
+
 	return cmd
 }

@@ -7,10 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	orgName string
-	orgID   string
-)
 var OrgCmd = &cobra.Command{
 	Use:     "organisation",
 	Short:   "Manage your qernal organisations",

@@ -133,7 +133,7 @@ func (p *Printer) RenderError(message string, err ...error) error {
 			os.Exit(1)
 			return nil // Empty error to avoid duplicate output
 		}
-		return fmt.Errorf("%s", charm.ErrorStyle.Render(message, ",", err[0].Error()))
+		return fmt.Errorf("%s", charm.ErrorStyle.Render(message, err[0].Error()))
 	}
 	return errors.New(charm.ErrorStyle.Render(message))
 }

@@ -1,8 +1,7 @@
-package secrets
+package functions
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
@@ -13,47 +12,49 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewSecretsListCmd(printer *utils.Printer) *cobra.Command {
+func NewListCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
-		Aliases: []string{"ls", "l"},
-		Short:   "list your qernal project secrets",
-		Example: "qernal secrets list",
+		Aliases: []string{"ls"},
+		Example: "qernal func list --project <project name> ",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return helpers.ValidateProjectFlags(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+
 			token, err := auth.GetQernalToken()
 			if err != nil {
-				return charm.RenderError("unable to retreive qernal token, run qernal auth login if you haven't")
+				return charm.RenderError("error creating qernal client", err)
 			}
-			ctx := context.Background()
+
 			qc, err := client.New(ctx, nil, nil, token)
 			if err != nil {
-				return charm.RenderError("", err)
+				return charm.RenderError("error creating qernal client", err)
 			}
-			maxResults, _ := cmd.Flags().GetInt32("max")
+
 			projectID, err := helpers.GetProjectID(cmd, &qc)
 			if err != nil {
 				return err
 			}
-			secrets, err := helpers.PaginateSecrets(printer, ctx, &qc, maxResults, projectID)
+			maxResults, _ := cmd.Flags().GetInt32("max")
+
+			functions, err := helpers.PaginateFunctions(printer, ctx, &qc, maxResults, projectID)
 			if err != nil {
-				return charm.RenderError("unable to list secrets", err)
-			}
-			if maxResults > 0 && len(secrets) > int(maxResults) {
-				secrets = secrets[:maxResults]
+				return charm.RenderError("unable to list function", err)
 			}
 
 			if common.OutputFormat == "json" {
-				fmt.Println(utils.FormatOutput(secrets, common.OutputFormat))
+				printer.PrintResource(utils.FormatOutput(functions, common.OutputFormat))
 				return nil
 			}
-			table := charm.RenderSecretsTable(secrets)
-			fmt.Println(table)
+
+			table := charm.RenderFuncTable(functions)
+			printer.PrintResource(table)
+
 			return nil
 		},
 	}
-	_ = cmd.MarkFlagRequired("project")
+
 	return cmd
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	utils "github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -22,6 +23,9 @@ func NewEncryptCmd(printer *utils.Printer) *cobra.Command {
 		Example: "qernal encrypt <plaintext>",
 		Aliases: []string{
 			"e",
+		},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
@@ -65,6 +69,11 @@ func NewEncryptCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("", err)
 			}
 
+			projectID, err := helpers.GetProjectID(cmd, &qc)
+			if err != nil {
+				return err
+			}
+
 			dek, err := qc.FetchDek(ctx, projectID)
 			if err != nil {
 				return charm.RenderError("unable to fetch dek key", err)
@@ -94,7 +103,6 @@ func NewEncryptCmd(printer *utils.Printer) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 	_ = cmd.MarkFlagRequired("project")
 	return cmd
