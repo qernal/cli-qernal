@@ -1,9 +1,8 @@
-package org
+package functions
 
 import (
 	"context"
 	"errors"
-	"log/slog"
 
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
@@ -13,11 +12,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
+func NewGetCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "delete",
-		Aliases: []string{"rm"},
-		Example: "qernal organisation delete --name <org name>",
+		Use:     "get",
+		Aliases: []string{"get"},
+		Example: "qernal function get --function <function ID>",
+		Short:   "Get detailed information about a function ",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return charm.RenderError("No arguments expected")
@@ -35,40 +35,42 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			orgName, _ := cmd.Flags().GetString("organisation")
-
-			org, err := qc.GetOrgByName(orgName)
-			if err != nil {
-				return charm.RenderError("x", err)
-			}
-
-			DeleteResp, httpRes, err := qc.OrganisationsAPI.OrganisationsDelete(ctx, org.Id).Execute()
+			functionID, _ := cmd.Flags().GetString("function")
+			qFunc, httpRes, err := qc.FunctionsAPI.FunctionsGet(ctx, functionID).Execute()
 			if err != nil {
 				resData, _ := client.ParseResponseData(httpRes)
 				if data, ok := resData.(map[string]interface{}); ok {
 					if innerData, ok := data["data"].(map[string]interface{}); ok {
-						return charm.RenderError("unable to delete organisation: ", errors.New(innerData["name"].(string)))
+						if nameErr, ok := innerData["name"].(string); ok {
+							return printer.RenderError("unable to find function", errors.New(nameErr))
+						}
 					}
 				}
-				printer.Logger.Debug("unable to delete org, request failed",
-					slog.String("error", err.Error()),
-					slog.Any("response", resData))
-				return charm.RenderError("unable to delete organisation", err)
+				return charm.RenderError("unable to find function", err)
 			}
 
 			var data interface{}
 			if common.OutputFormat == "json" {
-				data = DeleteResp
+				data = qFunc
 			} else {
+				// TODO: persist order of this render
+
 				data = map[string]interface{}{
-					"sucessfully deleted organisation with name:": org.Name,
+					"Name":        qFunc.Name,
+					"Project ID":  qFunc.ProjectId,
+					"Function ID": qFunc.Id,
+					"Secrets":     len(qFunc.Secrets),
 				}
 			}
-			printer.PrintResource(charm.RenderWarning(utils.FormatOutput(data, common.OutputFormat)))
+
+			response := charm.SuccessStyle.Render(utils.FormatOutput(data, common.OutputFormat))
+			printer.PrintResource(response)
 			return nil
 
 		},
 	}
-	_ = cmd.MarkFlagRequired("orgnaisation")
+	cmd.Flags().StringVarP(&functionID, "function", "f", "", "function id")
+	_ = cmd.MarkFlagRequired("function")
+
 	return cmd
 }

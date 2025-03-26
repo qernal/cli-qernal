@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,8 +17,8 @@ func TestProjectUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create org: %v", err)
 	}
-	projectname := uuid.NewString()
 
+	projectname := uuid.NewString()
 	var expectedJson struct {
 		ProjectName    string `json:"project_name"`
 		OrganisationID string `json:"organisation_id"`
@@ -26,30 +27,43 @@ func TestProjectUpdate(t *testing.T) {
 
 	updatedPojectName := uuid.NewString()
 
-	//set stdout to a buffer we control
 	var buf bytes.Buffer
 	printer := utils.NewPrinter()
 	printer.SetOut(&buf)
 
+	// Create root command for persistent flags
+	rootCmd := &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().String("organisation-id", "", "")
+
 	createCmd := NewCreateCmd(printer)
-	createCmd.SetArgs([]string{"create", "--name", projectname, "--organisation", orgID, "--output", "json"})
-	err = createCmd.Execute()
+	rootCmd.AddCommand(createCmd)
+	rootCmd.SetArgs([]string{"create", "--name", projectname, "--organisation-id", orgID, "--output", "json"})
+
+	err = rootCmd.Execute()
 	if err != nil {
 		t.Fatalf("unable to create to project, command failed with %v", err)
 	}
+
 	err = json.Unmarshal(buf.Bytes(), &expectedJson)
 	if err != nil {
-		t.Fatalf("unbale to unmarshal output, decode failed with  %v", err)
+		t.Fatalf("unable to unmarshal output, decode failed with %v", err)
 	}
+
 	buf.Reset()
+	rootCmd = &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().String("organisation-id", "", "")
 
-	updatecmd := NewUpdateCmd(printer)
-	// "qernal projects update --project=<project ID> --org <org ID> --name <name>"
-	updateArgs := []string{"update", "--project", expectedJson.ProjectID, "--organisation", expectedJson.OrganisationID, "--name", updatedPojectName, "--output", "json"}
+	updateCmd := NewUpdateCmd(printer)
+	rootCmd.AddCommand(updateCmd)
+	rootCmd.SetArgs([]string{
+		"update",
+		"--project", expectedJson.ProjectID,
+		"--organisation-id", expectedJson.OrganisationID,
+		"--name", updatedPojectName,
+		"--output", "json",
+	})
 
-	updatecmd.SetArgs(updateArgs)
-
-	err = updatecmd.Execute()
+	err = rootCmd.Execute()
 	if err != nil {
 		t.Fatalf("unable to update to project, command failed with %v", err)
 	}
@@ -59,5 +73,4 @@ func TestProjectUpdate(t *testing.T) {
 	t.Cleanup(func() {
 		helpers.DeleteOrg(expectedJson.OrganisationID)
 	})
-
 }

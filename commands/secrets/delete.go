@@ -6,6 +6,7 @@ import (
 	"github.com/qernal/cli-qernal/charm"
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -15,6 +16,9 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 		Use:     "delete",
 		Short:   "delete a qernal secret",
 		Aliases: []string{"rm", "remove"},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			token, err := auth.GetQernalToken()
 			if err != nil {
@@ -25,6 +29,12 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 			if err != nil {
 				return charm.RenderError("", err)
 			}
+
+			projectID, err := helpers.GetProjectID(cmd, &qc)
+			if err != nil {
+				return err
+			}
+
 			_, _, err = qc.SecretsAPI.ProjectsSecretsDelete(ctx, projectID, secretName).Execute()
 			if err != nil {
 				return charm.RenderError("unable to delete secret,  request failed with:", err)
@@ -36,7 +46,6 @@ func NewDeleteCmd(printer *utils.Printer) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVarP(&secretName, "name", "n", "", "name of the secret")
-	cmd.Flags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	_ = cmd.MarkFlagRequired("project")
 	_ = cmd.MarkFlagRequired("name")
 	return cmd

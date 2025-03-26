@@ -11,6 +11,7 @@ import (
 	"github.com/qernal/cli-qernal/commands/auth"
 	"github.com/qernal/cli-qernal/pkg/client"
 	"github.com/qernal/cli-qernal/pkg/common"
+	"github.com/qernal/cli-qernal/pkg/helpers"
 	"github.com/qernal/cli-qernal/pkg/utils"
 	openapi_chaos_client "github.com/qernal/openapi-chaos-go-client"
 	"github.com/spf13/cobra"
@@ -28,6 +29,9 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 		Use:     "create",
 		Aliases: []string{"new"},
 		Short:   "Create a new secret",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return helpers.ValidateProjectFlags(cmd)
+		},
 		Long: `Create a new secret in your Qernal project.
 This command supports creating registry, environment, and certificate secrets.
 The secret value is read from stdin, allowing for secure input methods.`,
@@ -58,6 +62,12 @@ The secret value is read from stdin, allowing for secure input methods.`,
 				return charm.RenderError("", err)
 			}
 
+			projectID, err := helpers.GetProjectID(cmd, &qc)
+			if err != nil {
+				return err
+			}
+			name, _ := cmd.Flags().GetString("name")
+
 			dek, err := qc.FetchDek(ctx, projectID)
 			if err != nil {
 				return charm.RenderError("unable to fetch dek key", err)
@@ -83,7 +93,7 @@ The secret value is read from stdin, allowing for secure input methods.`,
 				}
 				encryptionRef := fmt.Sprintf(`keys/dek/%d`, dek.Revision)
 				_, _, err = qc.SecretsAPI.ProjectsSecretsCreate(ctx, projectID).SecretBody(openapi_chaos_client.SecretBody{
-					Name:       strings.ToUpper(secretName),
+					Name:       strings.ToUpper(name),
 					Encryption: encryptionRef,
 					Type:       openapi_chaos_client.SECRETCREATETYPE_REGISTRY,
 					Payload: openapi_chaos_client.SecretCreatePayload{
@@ -173,17 +183,16 @@ The secret value is read from stdin, allowing for secure input methods.`,
 		},
 	}
 
-	_ = cmd.MarkFlagRequired("name")
-	_ = cmd.MarkFlagRequired("project")
 	cmd.Flags().StringVarP(&secretType, "type", "t", "", "type of secret to be created (registry, environment, certificate")
 	cmd.Flags().StringVarP(&registry, "registry-url", "r", "", "Url to private container repository (for docker registry use docker.io)")
-
 	cmd.Flags().StringVarP(&secretName, "name", "n", "", "name of the secret")
-	cmd.Flags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-
 	cmd.Flags().StringVarP(&publicKey, "public-key", "", "", "File path to the public key for certificate type")
 	cmd.Flags().StringVarP(&privateKey, "private-key", "", "", "File path to the private key for certificate type")
+
+	_ = cmd.MarkFlagRequired("name")
+
+	_ = cmd.MarkFlagRequired("type")
 
 	return cmd
 }

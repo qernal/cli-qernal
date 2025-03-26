@@ -32,7 +32,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("", err)
 			}
 
-			orgName, _ := cmd.Flags().GetString("name")
+			orgName, _ := cmd.Flags().GetString("organisation")
 
 			org, httpRes, err := qc.OrganisationsAPI.OrganisationsCreate(ctx).OrganisationBody(openapi_chaos_client.OrganisationBody{
 				Name: orgName,
@@ -66,8 +66,7 @@ func NewCreateCmd(printer *utils.Printer) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVarP(&orgName, "name", "n", "", "name of the organisation")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("organisation")
 	return cmd
 }

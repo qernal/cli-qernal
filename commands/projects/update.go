@@ -20,7 +20,7 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update",
 		Aliases: []string{"edit"},
-		Example: "qernal projects update --project=<project ID> --org <org ID> --name <name>",
+		Example: "qernal projects update --project=<project ID> --organisation-id <org ID> --name <name>",
 		Short:   "edit qernal project name",
 		Long:    "qernal projects update --project=<project ID>  if --name is not supplied cli will prompt for a new project name",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -36,6 +36,8 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 			if err != nil {
 				return charm.RenderError("error creating qernal client", err)
 			}
+
+			orgID, _ := cmd.Flags().GetString("organisation-id")
 
 			patchResp, _, err := qc.ProjectsAPI.ProjectsUpdate(ctx, projectId).ProjectBodyPatch(openapi_chaos_client.ProjectBodyPatch{
 				OrgId: &orgID,
@@ -54,8 +56,7 @@ func NewUpdateCmd(printer *utils.Printer) *cobra.Command {
 	cmd.Flags().StringVarP(&projectId, "project", "p", "", "Project ID")
 	cmd.Flags().StringVarP(&name, "name", "n", "", "name of the project to be updated")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
-	cmd.Flags().StringVarP(&orgID, "organisation", "", "", "organisation of the project to be updated")
-	_ = cmd.MarkFlagRequired("project")
+	_ = cmd.MarkFlagRequired("organisation-id")
 	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }

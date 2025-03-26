@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var projectID string
 var secretName string
 
 var SecretsCmd = &cobra.Command{
@@ -30,7 +29,6 @@ func init() {
 	SecretsCmd.AddCommand(NewEncryptCmd(printer))
 	SecretsCmd.AddCommand(NewDeleteCmd(printer))
 	SecretsCmd.AddCommand(NewCreateCmd(printer))
-	SecretsCmd.PersistentFlags().StringVarP(&projectID, "project", "p", "", "ID of the project")
 	SecretsCmd.PersistentFlags().StringVarP(&secretName, "name", "n", "", "name of the secret")
 
 	_ = NewCreateCmd(printer).MarkFlagRequired("name")

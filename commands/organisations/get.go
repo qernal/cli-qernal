@@ -33,7 +33,7 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 				return charm.RenderError("error creating qernal client", err)
 			}
 
-			orgName, _ := cmd.Flags().GetString("name")
+			orgName, _ := cmd.Flags().GetString("organisation")
 
 			org, err := qc.GetOrgByName(orgName)
 			if err != nil {
@@ -62,9 +62,8 @@ func NewGetCmd(printer *utils.Printer) *cobra.Command {
 
 		},
 	}
-	cmd.Flags().StringVar(&orgName, "name", "", "name of the organisation")
 	cmd.Flags().StringVarP(&common.OutputFormat, "output", "o", "text", "output format (json,text)")
 
-	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("organisation")
 	return cmd
 }
