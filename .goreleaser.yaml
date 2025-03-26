@@ -63,6 +63,8 @@ notarize:
 
 universal_binaries:
   - replace: true
+    ids:
+      - cli-macos
 
 brews:
   - name: qernal
