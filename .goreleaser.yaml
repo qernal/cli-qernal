@@ -11,13 +11,13 @@ builds:
       - windows
     goarch:
       - amd64
-      - '386'
+      - "386"
       - arm
       - arm64
     ignore:
       - goos: darwin
-        goarch: '386'
-  - id: "macos-cli"
+        goarch: "386"
+  - id: "cli-macos"
     main: ./cmd/main.go
     binary: qernal
     goos:
@@ -26,6 +26,9 @@ builds:
       - amd64
       - arm
       - arm64
+
+checksum:
+  name_template: "checksums.txt"
 
 signs:
   - artifacts: checksum
@@ -44,16 +47,47 @@ release:
 
 notarize:
   macos:
-    - enabled: '{{ isEnvSet "MACOS_SIGN_P12" }}'
+    - enabled: "{{ isEnvSet \"MACOS_SIGN_P12\" }}"
       ids:
-        - macos-cli
+        - cli-macos
       sign:
-        certificate: "{{.Env.MACOS_SIGN_P12}}"
-        password: "{{.Env.MACOS_SIGN_PASSWORD}}"
+        certificate: "{{ .Env.MACOS_SIGN_P12 }}"
+        password: "{{ .Env.MACOS_SIGN_PASSWORD }}"
 
       notarize:
-        issuer_id: "{{.Env.MACOS_NOTARY_ISSUER_ID}}"
-        key_id: "{{.Env.MACOS_NOTARY_KEY_ID}}"
-        key: "{{.Env.MACOS_NOTARY_KEY}}"
+        issuer_id: "{{ .Env.MACOS_NOTARY_ISSUER_ID }}"
+        key_id: "{{ .Env.MACOS_NOTARY_KEY_ID }}"
+        key: "{{ .Env.MACOS_NOTARY_KEY }}"
         wait: true
         timeout: 50m
+
+universal_binaries:
+  - replace: true
+    ids:
+      - cli-macos
+
+brews:
+  - name: qernal
+    ids:
+      - cli-macos
+
+    url_template: "https://github.com/qernal/homebrew-qernal/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+    repository:
+      owner: qernal
+      name: homebrew-qernal
+      branch: "{{.ProjectName}}-{{.Version}}"
+      token: "{{ .Env.GH_BREW_TOKEN }}"
+
+      pull_request:
+        enabled: true
+        draft: false
+
+        base:
+          branch: main
+
+    commit_author:
+      name: "{{ .Env.GIT_AUTHOR_NAME }}"
+      email: "{{ .Env.GIT_AUTHOR_EMAIL }}"
+
+    commit_msg_template: "chore: brew formula update for {{ .ProjectName }} version {{ .Tag }}"
