@@ -11,6 +11,10 @@ permissions:
   contents: write
   packages: write
 
+env:
+  GIT_AUTHOR_NAME: ${{ github.actor }}
+  GIT_AUTHOR_EMAIL: "${{ github.actor }}@users.noreply.github.com"
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
@@ -59,6 +63,18 @@ jobs:
           distribution: goreleaser
           version: "~> v2"
           args: build --snapshot --clean
+
+       # Release only on tags
+      - name: Run GoReleaser (full release, on tags)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_BREW_TOKEN: ${{ secrets.GH_BREW_TOKEN }}
 
       - name: Upload assets
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
