@@ -2,24 +2,40 @@
 version: 2
 project_name: qernal-cli
 
+before:
+  hooks:
+    - go mod download
+
 builds:
-  - id: "cli"
+  - id: "cli-windows"
     main: ./cmd/main.go
     binary: qernal
+    env:
+      - CGO_ENABLED=0
     goos:
-      - linux
       - windows
     goarch:
       - amd64
       - "386"
       - arm
       - arm64
-    ignore:
-      - goos: darwin
-        goarch: "386"
+  - id: "cli-linux"
+    main: ./cmd/main.go
+    binary: qernal
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - "386"
+      - arm
+      - arm64
   - id: "cli-macos"
     main: ./cmd/main.go
     binary: qernal
+    env:
+      - CGO_ENABLED=0
     goos:
       - darwin
     goarch:
@@ -62,12 +78,22 @@ notarize:
         timeout: 50m
 
 universal_binaries:
-  - replace: true
+  - id: cli-macos-universal
+    replace: true
     ids:
       - cli-macos
 
 archives:
-  - formats: ["zip", "binary"]
+  - id: cli-all-binaries
+    formats: ["binary"]
+  - id: homebrew-macos-universal
+    ids:
+      - cli-macos-universal
+    formats: ["zip"]
+  - id: homebrew-linux
+    ids:
+      - cli-linux-zips
+    formats: ["zip"]
 
 brews:
   - name: qernal
@@ -75,6 +101,10 @@ brews:
     description: 'A CLI tool for Qernal'
 
     url_template: "https://github.com/qernal/homebrew-qernal/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+    ids:
+      - homebrew-macos-universal
+      - homebrew-linux
 
     repository:
       owner: qernal
