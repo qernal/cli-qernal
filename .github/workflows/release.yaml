@@ -47,6 +47,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_BREW_TOKEN: ${{ secrets.GH_BREW_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           MACOS_SIGN_P12: ${{ secrets.MACOS_SIGN_P12 }}
           MACOS_SIGN_PASSWORD: ${{ secrets.MACOS_SIGN_PASSWORD }}
@@ -63,18 +64,6 @@ jobs:
           distribution: goreleaser
           version: "~> v2"
           args: build --snapshot --clean
-
-       # Release only on tags
-      - name: Run GoReleaser (full release, on tags)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser
-          version: "~> v2"
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_BREW_TOKEN: ${{ secrets.GH_BREW_TOKEN }}
 
       - name: Upload assets
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
