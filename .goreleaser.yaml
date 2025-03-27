@@ -66,10 +66,13 @@ universal_binaries:
     ids:
       - cli-macos
 
+archives:
+  - formats: ["zip", "binary"]
+
 brews:
   - name: qernal
-    ids:
-      - qernal-cli
+    homepage: 'https://qernal.com/'
+    description: 'A CLI tool for Qernal'
 
     url_template: "https://github.com/qernal/homebrew-qernal/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
