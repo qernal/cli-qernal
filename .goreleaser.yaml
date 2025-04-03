@@ -93,15 +93,15 @@ archives:
     formats: ["zip"]
   - id: homebrew-linux
     ids:
-      - cli-linux-zips
+      - cli-linux
     formats: ["zip"]
 
 brews:
-  - name: qernal
+  - name: qernal-cli
     homepage: 'https://qernal.com/'
     description: 'A CLI tool for Qernal'
 
-    url_template: "https://github.com/qernal/homebrew-qernal/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/qernal/cli-qernal/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
     ids:
       - homebrew-macos-universal
