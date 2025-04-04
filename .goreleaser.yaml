@@ -107,6 +107,10 @@ brews:
       - homebrew-macos-universal
       - homebrew-linux
 
+    # make sure this is always installed as "qernal" binary
+    install: |
+      bin.install "qernal"
+
     repository:
       owner: qernal
       name: homebrew-qernal
